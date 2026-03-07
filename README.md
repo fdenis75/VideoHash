@@ -19,7 +19,7 @@ The default PHash pipeline is compatibility-focused and matches `peolic/videohas
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/fdenis75/VideoHash.git", from: "0.1.0")
+    .package(url: "https://github.com/fdenis75/VideoHash.git", from: "0.2.0")
 ]
 ```
 
@@ -41,6 +41,20 @@ let result = try await generator.generateHashes(for: url)
 print("PHash: \(result.phash)")
 print("OSHash: \(result.oshash)")
 print("Duration: \(Int(result.duration))s")
+```
+
+Batch hashing with controlled concurrency:
+
+```swift
+let urls: [URL] = [
+    URL(fileURLWithPath: "/path/to/a.mp4"),
+    URL(fileURLWithPath: "/Volumes/Archive/b.mp4")
+]
+
+let results = try await generator.generateHashes(
+    for: urls,
+    maxConcurrentTasks: 4
+)
 ```
 
 ## Configuration
@@ -72,6 +86,7 @@ Notes:
 swift build
 swift test
 swift run test-hash /path/to/video.mp4
+swift run test-hash /path/to/folder 4
 ```
 
 Manual parity check against the original tool:

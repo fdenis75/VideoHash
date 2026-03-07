@@ -15,7 +15,7 @@ let package = Package(
         ),
         .executable(
             name: "test-hash",
-            targets: ["TestHash"]
+            targets: ["test-hash"]
         )
     ],
     dependencies: [
@@ -35,6 +35,11 @@ let package = Package(
             name: "TestHash",
             dependencies: ["VideoHash"],
             path: "Sources/TestHash"
+        ),
+        .executableTarget(
+            name: "test-hash",
+            dependencies: ["VideoHash"],
+            path: "Sources/test-hash"
         ),
         .testTarget(
             name: "VideoHashTests",
