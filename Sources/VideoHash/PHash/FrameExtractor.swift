@@ -266,48 +266,7 @@ actor FrameExtractor: Sendable {
     }
 
     private func resolveFFmpegPath() throws -> String {
-        if let configuredPath = configuration.ffmpegPath {
-            if configuredPath.contains("/") {
-                guard FileManager.default.isExecutableFile(atPath: configuredPath) else {
-                    throw HashError.frameExtractionFailed(reason: "Configured ffmpegPath is not executable: \(configuredPath)")
-                }
-                return configuredPath
-            } else if let resolved = resolveExecutable(named: configuredPath) {
-                return resolved
-            } else {
-                throw HashError.frameExtractionFailed(reason: "Could not resolve ffmpeg executable named: \(configuredPath)")
-            }
-        }
-
-        if let resolved = resolveExecutable(named: "ffmpeg") {
-            return resolved
-        }
-
-        let commonPaths = [
-            "/opt/homebrew/bin/ffmpeg",
-            "/usr/local/bin/ffmpeg",
-            "/opt/bin/ffmpeg"
-        ]
-        if let found = commonPaths.first(where: { FileManager.default.isExecutableFile(atPath: $0) }) {
-            return found
-        }
-
-        throw HashError.frameExtractionFailed(
-            reason: "ffmpeg executable not found. Install ffmpeg or set HashConfiguration.ffmpegPath"
-        )
-    }
-
-    private func resolveExecutable(named executableName: String) -> String? {
-        guard let pathEnv = ProcessInfo.processInfo.environment["PATH"] else {
-            return nil
-        }
-        for directory in pathEnv.split(separator: ":") {
-            let candidate = String(directory) + "/" + executableName
-            if FileManager.default.isExecutableFile(atPath: candidate) {
-                return candidate
-            }
-        }
-        return nil
+        try FFmpegPathResolver().resolve(configuredPath: configuration.ffmpegPath)
     }
 
     // MARK: - AVFoundation fallback

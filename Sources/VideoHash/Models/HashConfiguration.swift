@@ -33,7 +33,11 @@ public struct HashConfiguration: Sendable, Equatable {
     /// Whether to use ffmpeg-compatible extraction for PHash frames (default: true)
     public var useFFmpegFrameExtraction: Bool
 
-    /// Optional path to ffmpeg binary. If nil, the executable is resolved from PATH/common locations.
+    /// Optional path to ffmpeg binary.
+    ///
+    /// If nil, the executable is resolved from an app-bundled auxiliary executable first,
+    /// then from PATH/common locations. In sandboxed macOS apps, prefer passing
+    /// `Bundle.main.path(forAuxiliaryExecutable: "ffmpeg")`.
     public var ffmpegPath: String?
 
     /// Default configuration matching videohashes tool
@@ -44,7 +48,7 @@ public struct HashConfiguration: Sendable, Equatable {
         spriteRows: 5,
         dctSize: 32,
         hashSize: 8,
-        useAccelerate: false,  // Use pure Swift DCT for now to debug
+        useAccelerate: true,  // Use pure Swift DCT for now to debug
         useFFmpegFrameExtraction: true,
         ffmpegPath: nil
     )
@@ -59,7 +63,8 @@ public struct HashConfiguration: Sendable, Equatable {
     ///   - hashSize: Hash coefficient size (default: 8)
     ///   - useAccelerate: Use Accelerate framework (default: true)
     ///   - useFFmpegFrameExtraction: Use ffmpeg-compatible frame extraction (default: true)
-    ///   - ffmpegPath: Optional path to ffmpeg executable
+    ///   - ffmpegPath: Optional path to ffmpeg executable. In sandboxed macOS apps,
+    ///     prefer `Bundle.main.path(forAuxiliaryExecutable: "ffmpeg")`.
     public init(
         frameCount: Int = 25,
         frameWidth: Int = 160,
