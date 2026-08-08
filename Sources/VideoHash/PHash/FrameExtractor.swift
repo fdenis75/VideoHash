@@ -73,22 +73,15 @@ actor FrameExtractor: Sendable {
             try? fileManager.removeItem(at: tempDirectory)
         }
 
-        for (index, time) in sampleTimes.enumerated() {
-            let framePath = tempDirectory
-                .appendingPathComponent(String(format: "frame-%04d.jpg", index))
-                .path
-            try runFFmpegFrameExtraction(
-                ffmpegPath: ffmpegPath,
-                videoPath: url.path,
-                timestamp: time,
-                outputPath: framePath
-            )
-        }
-
+        // Single ffmpeg process: one seeked input per sample time, combined via
+        // filter_complex (scale -> tile -> resize -> grayscale). Replaces 25
+        // frame-extraction processes + 1 tiling process with one process, and drops
+        // the lossy per-frame JPEG round-trip the old two-pass pipeline went through.
         let rawPath = tempDirectory.appendingPathComponent("gray-\(configuration.dctSize).raw").path
-        try runFFmpegTilePreprocess(
+        try runFFmpegExtractAndTile(
             ffmpegPath: ffmpegPath,
-            inputPattern: tempDirectory.appendingPathComponent("frame-%04d.jpg").path,
+            videoPath: url.path,
+            sampleTimes: sampleTimes,
             outputPath: rawPath
         )
 
@@ -221,6 +214,72 @@ actor FrameExtractor: Sendable {
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown ffmpeg error"
             throw HashError.frameExtractionFailed(
                 reason: "ffmpeg exited with status \(process.terminationStatus): \(stderrOutput)"
+            )
+        }
+    }
+
+    /// Extract all sample frames and tile them into a grayscale sprite in a single
+    /// ffmpeg process: one `-ss`/`-i` pair per sample time (each still seeks and
+    /// decodes independently, matching the per-frame timestamps of the old
+    /// multi-process pipeline), joined by a filter_complex that scales each frame,
+    /// tiles them into the sprite grid, then resizes and converts to grayscale.
+    private func runFFmpegExtractAndTile(
+        ffmpegPath: String,
+        videoPath: String,
+        sampleTimes: [Double],
+        outputPath: String
+    ) throws {
+        var arguments = ["-v", "error"]
+        for time in sampleTimes {
+            arguments += ["-ss", String(format: "%.6f", time), "-i", videoPath]
+        }
+
+        var filterParts: [String] = []
+        for index in 0..<sampleTimes.count {
+            filterParts.append("[\(index):v]scale=\(configuration.frameWidth):-1[v\(index)]")
+        }
+        // `tile` consumes consecutive frames from a single stream (it has no
+        // multi-pad form like hstack/vstack), so the per-frame streams must be
+        // concatenated into one stream before tiling.
+        let concatInputs = (0..<sampleTimes.count).map { "[v\($0)]" }.joined()
+        filterParts.append("\(concatInputs)concat=n=\(sampleTimes.count):v=1:a=0[allframes]")
+        filterParts.append(
+            "[allframes]tile=\(configuration.spriteColumns)x\(configuration.spriteRows):padding=0:margin=0[tiled]"
+        )
+        filterParts.append(
+            "[tiled]scale=\(configuration.dctSize):\(configuration.dctSize):flags=bilinear,format=gray[out]"
+        )
+
+        arguments += [
+            "-filter_complex", filterParts.joined(separator: ";"),
+            "-map", "[out]",
+            "-frames:v", "1",
+            "-f", "rawvideo",
+            "-pix_fmt", "gray",
+            "-y", outputPath
+        ]
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: ffmpegPath)
+        process.arguments = arguments
+
+        let stderrPipe = Pipe()
+        process.standardError = stderrPipe
+        process.standardOutput = Pipe()
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            throw HashError.processingFailed(reason: "Failed to launch ffmpeg extract+tile: \(error.localizedDescription)")
+        }
+
+        guard process.terminationStatus == 0 else {
+            let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+            let stderrOutput = String(data: stderrData, encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown ffmpeg error"
+            throw HashError.processingFailed(
+                reason: "ffmpeg extract+tile exited with status \(process.terminationStatus): \(stderrOutput)"
             )
         }
     }
