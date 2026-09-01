@@ -197,25 +197,12 @@ actor FrameExtractor: Sendable {
             outputPath
         ]
 
-        let stderrPipe = Pipe()
-        process.standardError = stderrPipe
-        process.standardOutput = Pipe()
-
-        do {
-            try process.run()
-            process.waitUntilExit()
-        } catch {
-            throw HashError.frameExtractionFailed(reason: "Failed to launch ffmpeg: \(error.localizedDescription)")
-        }
-
-        guard process.terminationStatus == 0 else {
-            let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
-            let stderrOutput = String(data: stderrData, encoding: .utf8)?
-                .trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown ffmpeg error"
-            throw HashError.frameExtractionFailed(
-                reason: "ffmpeg exited with status \(process.terminationStatus): \(stderrOutput)"
-            )
-        }
+        try runFFmpegProcess(
+            process,
+            launchFailureReason: "Failed to launch ffmpeg",
+            exitFailureReason: "ffmpeg",
+            failureReason: HashError.frameExtractionFailed
+        )
     }
 
     /// Extract all sample frames and tile them into a grayscale sprite in a single
@@ -263,25 +250,12 @@ actor FrameExtractor: Sendable {
         process.executableURL = URL(fileURLWithPath: ffmpegPath)
         process.arguments = arguments
 
-        let stderrPipe = Pipe()
-        process.standardError = stderrPipe
-        process.standardOutput = Pipe()
-
-        do {
-            try process.run()
-            process.waitUntilExit()
-        } catch {
-            throw HashError.processingFailed(reason: "Failed to launch ffmpeg extract+tile: \(error.localizedDescription)")
-        }
-
-        guard process.terminationStatus == 0 else {
-            let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
-            let stderrOutput = String(data: stderrData, encoding: .utf8)?
-                .trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown ffmpeg error"
-            throw HashError.processingFailed(
-                reason: "ffmpeg extract+tile exited with status \(process.terminationStatus): \(stderrOutput)"
-            )
-        }
+        try runFFmpegProcess(
+            process,
+            launchFailureReason: "Failed to launch ffmpeg extract+tile",
+            exitFailureReason: "ffmpeg extract+tile",
+            failureReason: HashError.processingFailed
+        )
     }
 
     private func runFFmpegTilePreprocess(
@@ -303,23 +277,57 @@ actor FrameExtractor: Sendable {
             outputPath
         ]
 
-        let stderrPipe = Pipe()
-        process.standardError = stderrPipe
-        process.standardOutput = Pipe()
+        try runFFmpegProcess(
+            process,
+            launchFailureReason: "Failed to launch ffmpeg tile preprocess",
+            exitFailureReason: "ffmpeg tile preprocess",
+            failureReason: HashError.processingFailed
+        )
+    }
+
+    /// Runs an ffmpeg process, draining stderr to a temp file as it writes rather than
+    /// buffering it in a `Pipe` and reading it back after `waitUntilExit()`. A `Pipe`'s
+    /// kernel buffer is only ~64KB; a corrupt input can make ffmpeg log far more than that
+    /// (thousands of "Invalid NAL unit size" lines even at `-v error`), so reading the pipe
+    /// only after exit deadlocks: ffmpeg blocks on write() while nothing drains the pipe, and
+    /// waitUntilExit() never returns.
+    private func runFFmpegProcess(
+        _ process: Process,
+        launchFailureReason: String,
+        exitFailureReason: String,
+        failureReason: (String) -> HashError
+    ) throws {
+        let fileManager = FileManager.default
+        let stderrURL = fileManager.temporaryDirectory.appendingPathComponent(
+            "videohash-ffmpeg-stderr-\(UUID().uuidString).log"
+        )
+        fileManager.createFile(atPath: stderrURL.path, contents: nil)
+        defer {
+            try? fileManager.removeItem(at: stderrURL)
+        }
+
+        guard let stderrHandle = FileHandle(forWritingAtPath: stderrURL.path) else {
+            throw failureReason("Failed to create stderr log file for ffmpeg")
+        }
+
+        process.standardError = stderrHandle
+        process.standardOutput = FileHandle.nullDevice
 
         do {
             try process.run()
             process.waitUntilExit()
         } catch {
-            throw HashError.processingFailed(reason: "Failed to launch ffmpeg tile preprocess: \(error.localizedDescription)")
+            try? stderrHandle.close()
+            throw failureReason("\(launchFailureReason): \(error.localizedDescription)")
         }
+        try? stderrHandle.close()
 
         guard process.terminationStatus == 0 else {
-            let stderrData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+            let stderrData = (try? Data(contentsOf: stderrURL)) ?? Data()
             let stderrOutput = String(data: stderrData, encoding: .utf8)?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown ffmpeg error"
-            throw HashError.processingFailed(
-                reason: "ffmpeg tile preprocess exited with status \(process.terminationStatus): \(stderrOutput)"
+            throw failureReason(
+                "\(exitFailureReason) exited with status \(process.terminationStatus): \(stderrOutput)"
             )
         }
     }
