@@ -61,6 +61,8 @@ Single-video calls on one shared generator can overlap. If your client already l
 
 Cancelling a request throws `CancellationError`, stops extraction retries, and cleans up its owned subprocesses and temporary files. FFmpeg gets a one-second grace period before forced termination if needed. File reads and synchronous processing observe cancellation at operation boundaries. Include FFmpeg child processes when measuring memory usage. Extraction uses sequential groups of at most ten seeked inputs per FFmpeg process, limiting decoder memory without changing the sample times or hash.
 
+Unsupported FFmpeg scaler conversions abort hashing for that video immediately with `HashError.frameExtractionFailed`; fast/accurate seeking is not retried for this error. Other extraction errors retain their existing seek fallback.
+
 ## Configuration
 
 ```swift

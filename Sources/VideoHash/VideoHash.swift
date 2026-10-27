@@ -141,6 +141,85 @@ public actor VideoHashGenerator: Sendable {
         }
     }
 
+    /// Generate hashes for multiple videos, yielding each completed video immediately.
+    ///
+    /// Elements arrive in completion order, with the original input index and URL
+    /// so callers can associate results even when an input URL occurs more than once.
+    /// Each element contains a success or the original error for that file. File
+    /// failures do not stop the queue. The stream buffers outcomes without dropping any.
+    /// Cancelling the consuming task cancels hashing. If you stop iteration early,
+    /// release the stream and its iterator or cancel the consuming task to stop work.
+    ///
+    /// - Parameters:
+    ///   - videoURLs: URLs of the video files to hash.
+    ///   - maxConcurrentTasks: Maximum files processed at once; must be positive.
+    /// - Returns: A stream of per-file outcomes. Invalid batch configuration and
+    ///   cancellation terminate the stream with an error during iteration.
+    @available(iOS 15, *)
+    public func generateHashesStream(
+        for videoURLs: [URL],
+        maxConcurrentTasks: Int
+    ) -> AsyncThrowingStream<(index: Int, url: URL, result: Result<HashResult, any Error>), any Error> {
+        let configuration = self.configuration
+        let extractionPolicy = self.extractionPolicy
+        let initiallyCancelled = Task.isCancelled
+
+        return AsyncThrowingStream { continuation in
+            let producer = Task {
+                do {
+                    if initiallyCancelled { throw CancellationError() }
+                    try Task.checkCancellation()
+                    try configuration.validate()
+                    guard maxConcurrentTasks > 0 else {
+                        throw HashError.processingFailed(reason: "maxConcurrentTasks must be greater than zero")
+                    }
+
+                    let plan = HashBatchPlanner.makePlan(for: videoURLs)
+                    try await withThrowingTaskGroup(of: (Int, Result<HashResult, any Error>).self) { group in
+                        var nextItemIndex = 0
+
+                        func addNextTaskIfAvailable() {
+                            guard nextItemIndex < plan.count else { return }
+                            let item = plan[nextItemIndex]
+                            nextItemIndex += 1
+                            group.addTask {
+                                try Task.checkCancellation()
+                                do {
+                                    let result = try await Self.generateHashesForSingleVideo(
+                                        item.url,
+                                        configuration: configuration,
+                                        extractionPolicy: extractionPolicy
+                                    )
+                                    try Task.checkCancellation()
+                                    return (item.originalIndex, .success(result))
+                                } catch {
+                                    try Task.checkCancellation()
+                                    return (item.originalIndex, .failure(error))
+                                }
+                            }
+                        }
+
+                        for _ in 0..<min(maxConcurrentTasks, plan.count) {
+                            addNextTaskIfAvailable()
+                        }
+                        while let (index, result) = try await group.next() {
+                            try Task.checkCancellation()
+                            if case .terminated = continuation.yield((index, videoURLs[index], result)) {
+                                group.cancelAll()
+                                return
+                            }
+                            addNextTaskIfAvailable()
+                        }
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { @Sendable _ in producer.cancel() }
+        }
+    }
+
     /// Generate only PHash for a video file
     /// - Parameter videoURL: URL of the video file
     /// - Returns: Lowercase hexadecimal string representing the PHash

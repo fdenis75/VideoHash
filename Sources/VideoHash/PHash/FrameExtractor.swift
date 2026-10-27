@@ -9,12 +9,14 @@ import Foundation
 import AVFoundation
 import CoreGraphics
 import Logging
+import os
 
 /// Extracts frames from video files for PHash generation.
 actor FrameExtractor: Sendable {
     private let configuration: HashConfiguration
     private let extractionPolicy: FFmpegExtractionPolicy
     private let logger = Logger.phash
+    private let signposter = OSSignposter(subsystem: "com.videohash", category: "PHash")
 
     init(configuration: HashConfiguration, extractionPolicy: FFmpegExtractionPolicy = .production) {
         self.extractionPolicy = extractionPolicy
@@ -124,12 +126,13 @@ actor FrameExtractor: Sendable {
 
     /// Extract one frame per sample time exactly like stash's `generateSpriteScreenshot`.
     ///
-    /// Frames are first extracted in sequential groups of at most ten ffmpeg inputs
+    /// Frames are first extracted in concurrent groups of at most ten ffmpeg inputs
     /// by default (one seeked input and one BMP output per sample time). Each output
     /// uses the reference's per-frame options; the original unbounded group is kept
-    /// for comparisons. If any group or BMP decoding fails,
-    /// frames are extracted one process at a time with stash's fallback: fast seek
-    /// first, then accurate seek for the remaining frames once a fast seek fails.
+    /// for comparisons. Unsupported scaler conversions abort the current request.
+    /// For other group or BMP decoding failures, frames are extracted one process
+    /// at a time with stash's fallback: fast seek first, then accurate seek for the
+    /// remaining frames once a fast seek fails.
     private func extractFramesWithFFmpeg(ffmpegPath: String, url: URL, sampleTimes: [Double], composeSprite: Bool) async throws -> FrameCollection {
         let fileManager = FileManager.default
         let tempDirectory = fileManager.temporaryDirectory.appendingPathComponent(
@@ -146,15 +149,29 @@ actor FrameExtractor: Sendable {
         }
 
         do {
-            for group in extractionPolicy.groups(count: sampleTimes.count) {
-                try Task.checkCancellation()
-                try await runFFmpegBatchExtraction(
-                    ffmpegPath: ffmpegPath,
-                    videoPath: url.path,
-                    sampleTimes: Array(sampleTimes[group]),
-                    outputPaths: outputURLs[group].map(\.path)
-                )
+            try await withThrowingTaskGroup(of: Void.self) { tasks in
+                for group in extractionPolicy.groups(count: sampleTimes.count) {
+                    tasks.addTask { [self] in
+                        try Task.checkCancellation()
+                        let signpostID = signposter.makeSignpostID()
+                        signposter.emitEvent("runFFmpegBatchExtractionStarted", id: signpostID)
+                        let state = signposter.beginInterval("runFFmpegBatchExtraction", id: signpostID, "Frames: \(group.count)")
+                        defer { signposter.endInterval("runFFmpegBatchExtraction", state) }
+                        try await runFFmpegBatchExtraction(
+                            ffmpegPath: ffmpegPath,
+                            videoPath: url.path,
+                            sampleTimes: Array(sampleTimes[group]),
+                            outputPaths: outputURLs[group].map(\.path)
+                        )
+                    }
+                }
+                // Propagate the first failure and cancel/join siblings before fallback.
+                for try await _ in tasks {}
             }
+            let collectionID = signposter.makeSignpostID()
+            signposter.emitEvent("frameCollectionStarted", id: collectionID)
+            let collectionState = signposter.beginInterval("frameCollection", id: collectionID)
+            defer { signposter.endInterval("frameCollection", collectionState) }
             var collection = FrameCollection(configuration: configuration, composeSprite: composeSprite)
             for output in outputURLs {
                 try Task.checkCancellation()
@@ -164,6 +181,7 @@ actor FrameExtractor: Sendable {
         } catch {
             try Task.checkCancellation()
             if error is CancellationError { throw error }
+            if Self.isUnsupportedConversion(error) { throw error }
             logger.warning("Batch frame extraction failed, extracting frames one by one: \(error.localizedDescription)")
         }
 
@@ -179,6 +197,7 @@ actor FrameExtractor: Sendable {
             } catch where !slowSeek {
                 try Task.checkCancellation()
                 if error is CancellationError { throw error }
+                if Self.isUnsupportedConversion(error) { throw error }
                 logger.warning("Fast seek failed at \(time)s, using accurate seek for remaining frames: \(error.localizedDescription)")
                 slowSeek = true
                 collection.append(try await extractSingleFrame(
@@ -188,6 +207,15 @@ actor FrameExtractor: Sendable {
         }
 
         return collection
+    }
+
+    /// Seeking again cannot repair a conversion that libswscale does not support.
+    private static func isUnsupportedConversion(_ error: any Error) -> Bool {
+        guard let hashError = error as? HashError,
+              case .frameExtractionFailed(let reason) = hashError else { return false }
+        return reason.split(separator: "\n").contains { line in
+            line.contains("[swscaler") && line.contains("Unsupported input (Operation not supported)")
+        }
     }
 
     /// Seek time formatted like Go's `fmt.Sprint(float64)` (shortest round-trip representation).

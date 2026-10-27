@@ -71,3 +71,15 @@ With `--purge`, the comparator first purges and reads 4 KiB from the middle of a
 For a single policy or selected cases, the underlying runner accepts `--ffmpeg-inputs 5 --cases combined-1 client-2`.
 
 Consolidated measurements, environment records, fixture identities, reports, and selected verification logs are versioned. Verbose per-case logs and duplicate per-case JSON files remain local and are ignored by Git; the consolidated results retain their measured values and purge status.
+
+## Unsupported-colour regression fixture
+
+The six-video parity corpus is selected from `Tests/VideoHashTests/Fixtures/video-hashes.json`, so extra files do not alter the accepted corpus. To also check the local reserved-colour-tag regression video with FFmpeg 9:
+
+```sh
+VIDEOHASH_FIXTURE_DIR=/Users/francois/Dev/HashTestVids \
+VIDEOHASH_ERROR_FIXTURE=/Users/francois/Dev/HashTestVids/errorvid.mp4 \
+swift test -c release
+```
+
+That regression checks that the unsupported scaler conversion throws after the first extraction group, with no seek retries and with its temporary directory removed. The library does not normalize or repair the colour metadata.

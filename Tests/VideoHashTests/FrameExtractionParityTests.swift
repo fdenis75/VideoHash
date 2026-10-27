@@ -6,12 +6,17 @@ import Testing
 
 @Suite(.serialized, .enabled(if: ProcessInfo.processInfo.environment["VIDEOHASH_FIXTURE_DIR"] != nil))
 struct FrameExtractionParityTests {
+    private struct Fixture: Decodable {
+        let file: String
+    }
+
     private func urls() throws -> [URL] {
         let folder = try #require(ProcessInfo.processInfo.environment["VIDEOHASH_FIXTURE_DIR"])
-        let urls = try FileManager.default.contentsOfDirectory(at: URL(fileURLWithPath: folder), includingPropertiesForKeys: nil)
-            .filter { $0.pathExtension == "mp4" }.sorted { $0.path < $1.path }
-        #expect(urls.count == 6)
-        return urls
+        let manifest = try #require(Bundle.module.url(forResource: "video-hashes", withExtension: "json", subdirectory: "Fixtures"))
+        // Additional regression videos must not silently change the accepted corpus.
+        return try JSONDecoder().decode([Fixture].self, from: Data(contentsOf: manifest)).map {
+            URL(fileURLWithPath: folder).appendingPathComponent($0.file)
+        }
     }
 
     @Test(arguments: [true, false])
@@ -56,7 +61,11 @@ struct FrameExtractionParityTests {
             let commands = trace.withLock { $0 }
             let groups = policy.groups(count: 25)
             #expect(commands.count == 1 + groups.count, "No hidden fallback")
-            for (group, command) in zip(groups, commands.dropFirst()) {
+            for group in groups {
+                let firstOutput = "frame-\(group.lowerBound).bmp"
+                let command = try #require(commands.dropFirst().first { arguments in
+                    arguments.contains { URL(fileURLWithPath: $0).lastPathComponent == firstOutput }
+                })
                 var expectedArguments = ["-v", "error", "-y"]
                 for index in group { expectedArguments += ["-ss", times[index], "-i", url.path] }
                 let outputs = command.filter { $0.hasSuffix(".bmp") }

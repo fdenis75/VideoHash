@@ -42,7 +42,13 @@ final class ProcessExecution: @unchecked Sendable {
                     guard let self else { return }
                     self.queue.async { self.didExit() }
                 }
+                
                 self.process = process
+                // Single-quote each component so it can be pasted into a shell verbatim.
+ /*               let commandLine = ([self.executableURL.path] + self.arguments)
+                    .map { "'" + $0.replacingOccurrences(of: "'", with: "'\\''") + "'" }
+                    .joined(separator: " ")
+                print(commandLine)*/
                 try process.run()
             } catch {
                 self.complete(.failure(error))

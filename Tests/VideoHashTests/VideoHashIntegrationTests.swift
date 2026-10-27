@@ -53,6 +53,41 @@ struct VideoHashIntegrationTests {
             #expect(result.oshash == entry.1.oshash)
         }
     }
+    @Test func testStreamContinuesAfterFileFails() async throws {
+        let (url, fixture) = try #require(fixtures().first)
+        let missing = url.deletingLastPathComponent().appendingPathComponent(UUID().uuidString)
+        let stream = await VideoHashGenerator().generateHashesStream(for: [url, missing, url], maxConcurrentTasks: 1)
+        var iterator = stream.makeAsyncIterator()
+        let first = try #require(try await iterator.next())
+        #expect(first.index == 0)
+        #expect(first.url == url)
+        #expect(try first.result.get().phash == fixture.phash)
+        let failed = try #require(try await iterator.next())
+        #expect(failed.index == 1)
+        #expect(failed.url == missing)
+        #expect(throws: HashError.fileNotFound(path: missing.path)) {
+            try failed.result.get()
+        }
+        let last = try #require(try await iterator.next())
+        #expect(last.index == 2)
+        #expect(try last.result.get().phash == fixture.phash)
+        let end = try await iterator.next()
+        #expect(end == nil)
+    }
+
+    @Test func testStreamAssociatesEveryResultWithItsInput() async throws {
+        let entries = try fixtures()
+        let stream = await VideoHashGenerator().generateHashesStream(for: entries.map(\.0), maxConcurrentTasks: 2)
+        var received = Set<Int>()
+        for try await (index, url, result) in stream {
+            #expect(received.insert(index).inserted)
+            #expect(url == entries[index].0)
+            #expect(try result.get().phash == entries[index].1.phash)
+            #expect(try result.get().oshash == entries[index].1.oshash)
+        }
+        #expect(received.count == entries.count)
+    }
+
     @Test func testAVFoundationBridgePreservesPixels() async throws {
         for (url, _) in try fixtures() {
             let asset = AVURLAsset(url: url)

@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import Logging
+import os
 
 /// Generates perceptual hash (PHash) for video files
 ///
@@ -21,6 +22,7 @@ actor PHashGenerator: Sendable {
     private let dctProcessor: DCTProcessor
     private let hashComputer: HashComputer
     private let logger = Logger.phash
+    private let signposter = OSSignposter(subsystem: "  ", category: "PHash")
 
     init(configuration: HashConfiguration, extractionPolicy: FFmpegExtractionPolicy = .production) {
         self.configuration = configuration
@@ -38,30 +40,59 @@ actor PHashGenerator: Sendable {
     /// - Throws: HashError if hash generation fails
     func generateHash(for url: URL, asset: AVURLAsset? = nil) async throws -> String {
         logger.info("Generating PHash for: \(url.path)")
+        let signpostID = signposter.makeSignpostID()
+        let generationState = signposter.beginInterval("PHashGeneration", id: signpostID)
+        defer { signposter.endInterval("PHashGeneration", generationState) }
+        signposter.emitEvent("PHashStarted", id: signpostID)
 
         let videoAsset = asset ?? AVURLAsset(url: url)
 
         try Task.checkCancellation()
         logger.debug("Phase 1: Extracting frames")
-        let sprite = try await frameExtractor.extractSprite(from: videoAsset, url: url)
+        let sprite: RGBImage
+        do {
+            signposter.emitEvent("frameExtractorStarted", id: signpostID)
+            let state = signposter.beginInterval("frameExtractor", id: signpostID)
+            defer { signposter.endInterval("frameExtractor", state) }
+            sprite = try await frameExtractor.extractSprite(from: videoAsset, url: url)
+        }
 
         try Task.checkCancellation()
         logger.debug("Phase 3: Processing image")
-        let pixels = try imageProcessor.processImage(sprite)
+        let pixels: [Double]
+        do {
+            signposter.emitEvent("imageProcessorStarted", id: signpostID)
+            let state = signposter.beginInterval("imageProcessor", id: signpostID)
+            defer { signposter.endInterval("imageProcessor", state) }
+            pixels = try imageProcessor.processImage(sprite)
+        }
 
         // Phase 4: Apply DCT
         try Task.checkCancellation()
         logger.debug("Phase 4: Applying DCT")
-        let dctCoeffs = try dctProcessor.applyDCT(to: pixels)
+        let dctCoeffs: [Double]
+        do {
+            signposter.emitEvent("dctProcessorStarted", id: signpostID)
+            let state = signposter.beginInterval("dctProcessor", id: signpostID)
+            defer { signposter.endInterval("dctProcessor", state) }
+            dctCoeffs = try dctProcessor.applyDCT(to: pixels)
+        }
 
         // Phase 5: Compute hash
         try Task.checkCancellation()
         logger.debug("Phase 5: Computing hash")
-        let hash = try hashComputer.computeHash(from: dctCoeffs)
+        let hash: String
+        do {
+            signposter.emitEvent("computeHashStarted", id: signpostID)
+            let state = signposter.beginInterval("computeHash", id: signpostID)
+            defer { signposter.endInterval("computeHash", state) }
+            hash = try hashComputer.computeHash(from: dctCoeffs)
+        }
 
         logger.info("Generated PHash: \(hash)")
 
         try Task.checkCancellation()
+        signposter.emitEvent("PHashCompleted", id: signpostID)
         return hash
     }
 }

@@ -70,7 +70,9 @@ struct FrameExtractionCancellationTests {
         await #expect(throws: CancellationError.self) {
             try await TestDeadline.value(of: task) { kill(pid, SIGKILL) }
         }
-        #expect(try String(contentsOf: calls, encoding: .utf8).split(separator: "\n").count == 2)
+        let callCount = try String(contentsOf: calls, encoding: .utf8).split(separator: "\n").count
+        // One duration probe and up to three concurrent extraction batches.
+        #expect((2...4).contains(callCount))
         #expect(!FileManager.default.fileExists(atPath: URL(fileURLWithPath: output).deletingLastPathComponent().path))
     }
     @Test func testAVFoundationPreCancellation() async {
