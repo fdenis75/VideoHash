@@ -21,14 +21,11 @@ public struct HashConfiguration: Sendable, Equatable {
     /// Number of rows in sprite grid (default: 5)
     public var spriteRows: Int
 
-    /// DCT processing size (default: 32x32)
+    /// DCT processing size (default: 64x64, as goimagehash's PerceptionHash)
     public var dctSize: Int
 
-    /// Hash size for coefficient extraction (default: 8x8)
+    /// Hash size for coefficient extraction (8x8 coefficients = 64-bit hash; only 8 is supported)
     public var hashSize: Int
-
-    /// Whether to use Accelerate framework for DCT (default: true)
-    public var useAccelerate: Bool
 
     /// Whether to use ffmpeg-compatible extraction for PHash frames (default: true)
     public var useFFmpegFrameExtraction: Bool
@@ -46,9 +43,8 @@ public struct HashConfiguration: Sendable, Equatable {
         frameWidth: 160,
         spriteColumns: 5,
         spriteRows: 5,
-        dctSize: 32,
+        dctSize: 64,
         hashSize: 8,
-        useAccelerate: true,  // Use pure Swift DCT for now to debug
         useFFmpegFrameExtraction: true,
         ffmpegPath: nil
     )
@@ -59,9 +55,8 @@ public struct HashConfiguration: Sendable, Equatable {
     ///   - frameWidth: Width to resize frames to (default: 160)
     ///   - spriteColumns: Sprite grid columns (default: 5)
     ///   - spriteRows: Sprite grid rows (default: 5)
-    ///   - dctSize: DCT processing size (default: 32)
+    ///   - dctSize: DCT processing size (default: 64)
     ///   - hashSize: Hash coefficient size (default: 8)
-    ///   - useAccelerate: Use Accelerate framework (default: true)
     ///   - useFFmpegFrameExtraction: Use ffmpeg-compatible frame extraction (default: true)
     ///   - ffmpegPath: Optional path to ffmpeg executable. In sandboxed macOS apps,
     ///     prefer `Bundle.main.path(forAuxiliaryExecutable: "ffmpeg")`.
@@ -70,9 +65,8 @@ public struct HashConfiguration: Sendable, Equatable {
         frameWidth: Int = 160,
         spriteColumns: Int = 5,
         spriteRows: Int = 5,
-        dctSize: Int = 32,
+        dctSize: Int = 64,
         hashSize: Int = 8,
-        useAccelerate: Bool = true,
         useFFmpegFrameExtraction: Bool = true,
         ffmpegPath: String? = nil
     ) {
@@ -82,7 +76,6 @@ public struct HashConfiguration: Sendable, Equatable {
         self.spriteRows = spriteRows
         self.dctSize = dctSize
         self.hashSize = hashSize
-        self.useAccelerate = useAccelerate
         self.useFFmpegFrameExtraction = useFFmpegFrameExtraction
         self.ffmpegPath = ffmpegPath
     }
@@ -101,8 +94,8 @@ public struct HashConfiguration: Sendable, Equatable {
         guard dctSize > 0 && dctSize.nonzeroBitCount == 1 else {
             throw HashError.processingFailed(reason: "DCT size must be power of 2")
         }
-        guard hashSize > 0 && hashSize <= dctSize else {
-            throw HashError.processingFailed(reason: "Hash size must be positive and <= DCT size")
+        guard hashSize == 8 && dctSize >= hashSize else {
+            throw HashError.processingFailed(reason: "Hash size must be 8 (64-bit hash) and <= DCT size")
         }
         if let ffmpegPath, ffmpegPath.isEmpty {
             throw HashError.processingFailed(reason: "ffmpegPath cannot be empty")

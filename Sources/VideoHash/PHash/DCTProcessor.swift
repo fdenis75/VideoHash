@@ -6,10 +6,12 @@
 //
 
 import Foundation
-import Accelerate
 import Logging
 
 /// Applies Discrete Cosine Transform to image data
+///
+/// Ports goimagehash's `transforms.DCT2D`: an unscaled DCT-II computed with
+/// Byeong Gi Lee's fast algorithm, applied to rows then columns.
 actor DCTProcessor: Sendable {
     private let configuration: HashConfiguration
     private let logger = Logger.phash
@@ -22,7 +24,7 @@ actor DCTProcessor: Sendable {
     /// - Parameter pixels: 1D array of grayscale pixels (row-major order)
     /// - Returns: DCT coefficients (row-major order)
     /// - Throws: HashError if DCT computation fails
-    func applyDCT(to pixels: [Float]) async throws -> [Float] {
+    func applyDCT(to pixels: [Double]) async throws -> [Double] {
         let size = configuration.dctSize
 
         logger.debug("Applying 2D DCT to \(size)x\(size) data")
@@ -32,114 +34,77 @@ actor DCTProcessor: Sendable {
                 reason: "Invalid pixel count for DCT: expected \(size * size), got \(pixels.count)"
             )
         }
-
-        if configuration.useAccelerate {
-            return try await applyDCTAccelerate(to: pixels, size: size)
-        } else {
-            return try await applyDCTPureSwift(to: pixels, size: size)
+        guard size.nonzeroBitCount == 1 else {
+            throw HashError.processingFailed(reason: "DCT size must be a power of 2, got \(size)")
         }
+
+        return Self.dct2D(pixels, size: size)
     }
 
-    // MARK: - Accelerate Implementation
-
-    /// Apply DCT using Accelerate framework (optimized)
-    private func applyDCTAccelerate(to pixels: [Float], size: Int) async throws -> [Float] {
-        logger.debug("Using Accelerate framework for DCT")
-
-        // Note: vDSP doesn't have direct 2D DCT, so we'll use a simplified approach:
-        // 1. Apply 1D DCT to each row
-        // 2. Apply 1D DCT to each column of the result
-
+    static func dct2D(_ pixels: [Double], size: Int) -> [Double] {
         var data = pixels
-        var temp = [Float](repeating: 0.0, count: size * size)
+        var line = [Double](repeating: 0.0, count: size)
+        var temp = [Double](repeating: 0.0, count: size)
 
-        // DCT on rows
+        // Rows
         for row in 0..<size {
-            let rowStart = row * size
-            let rowEnd = rowStart + size
-            var rowData = Array(data[rowStart..<rowEnd])
-            dct1D(&rowData)
-            temp.replaceSubrange(rowStart..<rowEnd, with: rowData)
+            for col in 0..<size {
+                line[col] = data[row * size + col]
+            }
+            dct1D(&line, temp: &temp)
+            for col in 0..<size {
+                data[row * size + col] = line[col]
+            }
         }
 
-        // DCT on columns (transpose, DCT, transpose back)
-        data = transpose(temp, size: size)
+        // Columns
         for col in 0..<size {
-            let colStart = col * size
-            let colEnd = colStart + size
-            var colData = Array(data[colStart..<colEnd])
-            dct1D(&colData)
-            data.replaceSubrange(colStart..<colEnd, with: colData)
+            for row in 0..<size {
+                line[row] = data[row * size + col]
+            }
+            dct1D(&line, temp: &temp)
+            for row in 0..<size {
+                data[row * size + col] = line[row]
+            }
         }
-        data = transpose(data, size: size)
-
-        logger.debug("DCT computed using Accelerate")
 
         return data
     }
 
-    /// Apply 1D DCT using scipy.fftpack.dct compatible formula (DCT-II, unnormalized)
-    private func dct1D(_ data: inout [Float]) {
-        let N = data.count
-        let output = data // Copy input
-
-        for k in 0..<N {
-            var sum: Float = 0.0
-            for n in 0..<N {
-                // DCT-II formula: cos(pi * k * (2n+1) / (2*N))
-                let angle = Float.pi * Float(k) * (Float(n) + 0.5) / Float(N)
-                sum += output[n] * cos(angle)
+    /// In-place unscaled DCT-II of a power-of-two length vector
+    static func dct1D(_ values: inout [Double], temp: inout [Double]) {
+        let count = values.count
+        values.withUnsafeMutableBufferPointer { input in
+            temp.withUnsafeMutableBufferPointer { scratch in
+                guard let inputBase = input.baseAddress, let scratchBase = scratch.baseAddress else { return }
+                forwardTransform(inputBase, scratchBase, count)
             }
-            // Unnormalized: multiply by 2 (scipy default)
-            data[k] = 2.0 * sum
         }
     }
 
-    /// Transpose a square matrix (row-major to column-major)
-    private func transpose(_ matrix: [Float], size: Int) -> [Float] {
-        var result = [Float](repeating: 0.0, count: size * size)
-        for row in 0..<size {
-            for col in 0..<size {
-                result[col * size + row] = matrix[row * size + col]
-            }
-        }
-        return result
-    }
-
-    // MARK: - Pure Swift Implementation
-
-    /// Apply 2D DCT using pure Swift (fallback) - matches scipy.fftpack.dct
-    private func applyDCTPureSwift(to pixels: [Float], size: Int) async throws -> [Float] {
-        logger.debug("Using pure Swift DCT implementation (scipy compatible)")
-
-        var dct = [Float](repeating: 0.0, count: size * size)
-
-        // 2D DCT-II formula (unnormalized, scipy default)
-        for u in 0..<size {
-            for v in 0..<size {
-                var sum: Float = 0.0
-
-                for x in 0..<size {
-                    for y in 0..<size {
-                        let pixelIndex = x * size + y
-                        let pixel = pixels[pixelIndex]
-
-                        // DCT-II formula: cos(pi * k * (2n+1) / (2*N))
-                        let cosU = cos(Float.pi * Float(u) * (Float(x) + 0.5) / Float(size))
-                        let cosV = cos(Float.pi * Float(v) * (Float(y) + 0.5) / Float(size))
-
-                        sum += pixel * cosU * cosV
-                    }
-                }
-
-                // Unnormalized: multiply by 4 for 2D (2 for each dimension)
-                let dctIndex = u * size + v
-                dct[dctIndex] = 4.0 * sum
-            }
+    private static func forwardTransform(
+        _ input: UnsafeMutablePointer<Double>,
+        _ temp: UnsafeMutablePointer<Double>,
+        _ length: Int
+    ) {
+        if length == 1 {
+            return
         }
 
-        logger.debug("DCT computed using pure Swift (scipy compatible)")
-
-        return dct
+        let halfLength = length / 2
+        for i in 0..<halfLength {
+            let x = input[i]
+            let y = input[length - 1 - i]
+            temp[i] = x + y
+            temp[i + halfLength] = (x - y) / (cos((Double(i) + 0.5) * Double.pi / Double(length)) * 2)
+        }
+        forwardTransform(temp, input, halfLength)
+        forwardTransform(temp + halfLength, input, halfLength)
+        for i in 0..<(halfLength - 1) {
+            input[i * 2 + 0] = temp[i]
+            input[i * 2 + 1] = temp[i + halfLength] + temp[i + halfLength + 1]
+        }
+        input[length - 2] = temp[halfLength - 1]
+        input[length - 1] = temp[length - 1]
     }
 }

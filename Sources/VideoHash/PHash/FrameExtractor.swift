@@ -8,7 +8,6 @@
 import Foundation
 import AVFoundation
 import CoreGraphics
-import ImageIO
 import Logging
 
 /// Extracts frames from video files for PHash generation.
@@ -24,83 +23,32 @@ actor FrameExtractor: Sendable {
     /// - Parameters:
     ///   - asset: AVURLAsset for the video
     ///   - url: URL of the video file
-    /// - Returns: Array of CGImages resized to configured width
+    /// - Returns: Frames scaled to the configured width
     /// - Throws: HashError if frame extraction fails
-    func extractFrames(from asset: AVURLAsset, url: URL) async throws -> [CGImage] {
+    func extractFrames(from asset: AVURLAsset, url: URL) async throws -> [RGBImage] {
         logger.debug("Extracting \(configuration.frameCount) frames from: \(url.path)")
 
-        // Get video duration
-        let duration = try await asset.load(.duration)
-        let durationSeconds = duration.seconds
-
-        guard durationSeconds > 0 else {
-            throw HashError.invalidVideoFile(path: url.path, reason: "Video has zero duration")
-        }
-
-        let sampleTimes = try makeSampleTimes(durationSeconds: durationSeconds)
-        logger.debug("Extracting frames at times: \(sampleTimes)")
-
         if configuration.useFFmpegFrameExtraction {
-            let frames = try extractFramesWithFFmpeg(from: url, sampleTimes: sampleTimes)
+            let ffmpegPath = try resolveFFmpegPath()
+            let durationSeconds = try await probeDuration(ffmpegPath: ffmpegPath, url: url, asset: asset)
+            let sampleTimes = try makeSampleTimes(durationSeconds: durationSeconds)
+            logger.debug("Extracting frames at times: \(sampleTimes)")
+
+            let frames = try extractFramesWithFFmpeg(ffmpegPath: ffmpegPath, url: url, sampleTimes: sampleTimes)
             logger.info("Successfully extracted \(frames.count) frames with ffmpeg")
             return frames
         } else {
+            let durationSeconds = try await asset.load(.duration).seconds
+            guard durationSeconds > 0 else {
+                throw HashError.invalidVideoFile(path: url.path, reason: "Video has zero duration")
+            }
+            let sampleTimes = try makeSampleTimes(durationSeconds: durationSeconds)
+            logger.debug("Extracting frames at times: \(sampleTimes)")
+
             let frames = try await extractFramesWithAVFoundation(asset: asset, sampleTimes: sampleTimes)
             logger.info("Successfully extracted \(frames.count) frames with AVFoundation")
-            return frames
+            return try frames.map { try RGBImage(cgImage: $0) }
         }
-    }
-
-    /// Extract and preprocess frames with an ffmpeg pipeline equivalent to videohashes:
-    /// extract 25 scaled frames -> tile into 5x5 sprite -> bilinear resize to DCT size -> grayscale bytes.
-    func extractPreprocessedPixels(from asset: AVURLAsset, url: URL) async throws -> [Float] {
-        let duration = try await asset.load(.duration)
-        let durationSeconds = duration.seconds
-
-        guard durationSeconds > 0 else {
-            throw HashError.invalidVideoFile(path: url.path, reason: "Video has zero duration")
-        }
-
-        let sampleTimes = try makeSampleTimes(durationSeconds: durationSeconds)
-        let ffmpegPath = try resolveFFmpegPath()
-        let fileManager = FileManager.default
-        let tempDirectory = fileManager.temporaryDirectory.appendingPathComponent(
-            "videohash-preprocess-\(UUID().uuidString)",
-            isDirectory: true
-        )
-        try fileManager.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
-        defer {
-            try? fileManager.removeItem(at: tempDirectory)
-        }
-
-        // Single ffmpeg process: one seeked input per sample time, combined via
-        // filter_complex (scale -> tile -> resize -> grayscale). Replaces 25
-        // frame-extraction processes + 1 tiling process with one process, and drops
-        // the lossy per-frame JPEG round-trip the old two-pass pipeline went through.
-        let rawPath = tempDirectory.appendingPathComponent("gray-\(configuration.dctSize).raw").path
-        try runFFmpegExtractAndTile(
-            ffmpegPath: ffmpegPath,
-            videoPath: url.path,
-            sampleTimes: sampleTimes,
-            outputPath: rawPath
-        )
-
-        let rawData = try Data(contentsOf: URL(fileURLWithPath: rawPath))
-        let pixelCount = configuration.dctSize * configuration.dctSize
-        guard rawData.count >= pixelCount else {
-            throw HashError.processingFailed(
-                reason: "Preprocessed grayscale output too small: expected \(pixelCount), got \(rawData.count)"
-            )
-        }
-
-        var pixels = [Float](repeating: 0.0, count: pixelCount)
-        rawData.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-            let bytePointer = bytes.bindMemory(to: UInt8.self)
-            for i in 0..<pixelCount {
-                pixels[i] = Float(bytePointer[i]) / 255.0
-            }
-        }
-        return pixels
     }
 
     // MARK: - Shared helpers
@@ -111,8 +59,8 @@ actor FrameExtractor: Sendable {
             throw HashError.processingFailed(reason: "Frame count must be positive")
         }
 
-        let startTime = durationSeconds * 0.05
-        let step = (durationSeconds * 0.9) / Double(configuration.frameCount)
+        let startTime = 0.05 * durationSeconds
+        let step = (0.9 * durationSeconds) / Double(configuration.frameCount)
 
         return (0..<configuration.frameCount).map { index in
             startTime + (Double(index) * step)
@@ -143,10 +91,62 @@ actor FrameExtractor: Sendable {
         return normalizedFrames
     }
 
+    // MARK: - Duration
+
+    /// Duration as videohashes sees it: the container duration reported by ffmpeg,
+    /// rounded to 0.01s (stash rounds ffprobe's `format.duration` the same way).
+    ///
+    /// AVFoundation's duration can differ noticeably (e.g. 21.38s vs 21.43s), which
+    /// shifts every sample timestamp, so it is only used when ffmpeg reports none.
+    private func probeDuration(ffmpegPath: String, url: URL, asset: AVURLAsset) async throws -> Double {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: ffmpegPath)
+        process.arguments = ["-hide_banner", "-i", url.path]
+
+        // ffmpeg exits non-zero here because no output is given; only stderr matters.
+        let (_, stderrOutput) = try runFFmpegProcess(
+            process,
+            launchFailureReason: "Failed to launch ffmpeg duration probe",
+            failureReason: HashError.frameExtractionFailed
+        )
+
+        if let duration = Self.parseDuration(fromFFmpegOutput: stderrOutput), duration > 0 {
+            return duration
+        }
+
+        logger.warning("ffmpeg reported no duration for \(url.path), falling back to AVFoundation")
+        let durationSeconds = try await asset.load(.duration).seconds
+        guard durationSeconds > 0 else {
+            throw HashError.invalidVideoFile(path: url.path, reason: "Video has zero duration")
+        }
+        return (durationSeconds * 100).rounded() / 100
+    }
+
+    /// Parse `Duration: HH:MM:SS.cc` from ffmpeg's input dump.
+    static func parseDuration(fromFFmpegOutput output: String) -> Double? {
+        guard let match = output.firstMatch(of: /Duration: (\d+):(\d{2}):(\d{2})\.(\d{2})/),
+              let hours = Int(match.1),
+              let minutes = Int(match.2),
+              let seconds = Int(match.3),
+              let centiseconds = Int(match.4) else {
+            return nil
+        }
+
+        // Integer centiseconds / 100 gives the same Double as Go's math.Round(d*100)/100.
+        let totalCentiseconds = ((hours * 60 + minutes) * 60 + seconds) * 100 + centiseconds
+        return Double(totalCentiseconds) / 100
+    }
+
     // MARK: - FFmpeg extraction
 
-    private func extractFramesWithFFmpeg(from url: URL, sampleTimes: [Double]) throws -> [CGImage] {
-        let ffmpegPath = try resolveFFmpegPath()
+    /// Extract one frame per sample time exactly like stash's `generateSpriteScreenshot`.
+    ///
+    /// All frames are first extracted by a single ffmpeg process (one seeked input and
+    /// one BMP output per sample time). Each output is produced with the same options
+    /// as the reference's per-frame command, so the pixels are identical. If that fails,
+    /// frames are extracted one process at a time with stash's fallback: fast seek
+    /// first, then accurate seek for the remaining frames once a fast seek fails.
+    private func extractFramesWithFFmpeg(ffmpegPath: String, url: URL, sampleTimes: [Double]) throws -> [RGBImage] {
         let fileManager = FileManager.default
         let tempDirectory = fileManager.temporaryDirectory.appendingPathComponent(
             "videohash-frames-\(UUID().uuidString)",
@@ -157,132 +157,127 @@ actor FrameExtractor: Sendable {
             try? fileManager.removeItem(at: tempDirectory)
         }
 
-        var frames: [CGImage] = []
-        frames.reserveCapacity(configuration.frameCount)
-
-        for (index, time) in sampleTimes.enumerated() {
-            let outputURL = tempDirectory.appendingPathComponent("frame-\(index).jpg")
-            try runFFmpegFrameExtraction(
-                ffmpegPath: ffmpegPath,
-                videoPath: url.path,
-                timestamp: time,
-                outputPath: outputURL.path
-            )
-
-            guard let imageSource = CGImageSourceCreateWithURL(outputURL as CFURL, nil),
-                  let image = CGImageSourceCreateImageAtIndex(imageSource, 0, nil) else {
-                throw HashError.frameExtractionFailed(reason: "Failed to decode ffmpeg output frame \(index)")
-            }
-            frames.append(image)
+        let outputURLs = sampleTimes.indices.map {
+            tempDirectory.appendingPathComponent("frame-\($0).bmp")
         }
 
-        return try normalizeFrameCount(frames)
+        do {
+            try runFFmpegBatchExtraction(
+                ffmpegPath: ffmpegPath,
+                videoPath: url.path,
+                sampleTimes: sampleTimes,
+                outputPaths: outputURLs.map(\.path)
+            )
+            return try outputURLs.map { try BMPDecoder.decode(Data(contentsOf: $0)) }
+        } catch {
+            logger.warning("Batch frame extraction failed, extracting frames one by one: \(error.localizedDescription)")
+        }
+
+        var frames: [RGBImage] = []
+        frames.reserveCapacity(sampleTimes.count)
+        var slowSeek = false
+
+        for (time, outputURL) in zip(sampleTimes, outputURLs) {
+            do {
+                frames.append(try extractSingleFrame(
+                    ffmpegPath: ffmpegPath, videoPath: url.path, timestamp: time, outputURL: outputURL, slowSeek: slowSeek
+                ))
+            } catch where !slowSeek {
+                logger.warning("Fast seek failed at \(time)s, using accurate seek for remaining frames: \(error.localizedDescription)")
+                slowSeek = true
+                frames.append(try extractSingleFrame(
+                    ffmpegPath: ffmpegPath, videoPath: url.path, timestamp: time, outputURL: outputURL, slowSeek: slowSeek
+                ))
+            }
+        }
+
+        return frames
     }
 
-    private func runFFmpegFrameExtraction(
-        ffmpegPath: String,
-        videoPath: String,
-        timestamp: Double,
-        outputPath: String
-    ) throws {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: ffmpegPath)
-        process.arguments = [
-            "-v", "error",
-            "-ss", String(format: "%.6f", timestamp),
-            "-i", videoPath,
+    /// Seek time formatted like Go's `fmt.Sprint(float64)` (shortest round-trip representation).
+    private func formatSeekTime(_ time: Double) -> String {
+        "\(time)"
+    }
+
+    /// Output options matching stash's `ScreenshotTime` with BMP output.
+    private func frameOutputArguments(outputPath: String) -> [String] {
+        [
             "-frames:v", "1",
-            "-vf", "scale=\(configuration.frameWidth):-1",
-            "-y",
+            "-vf", "scale=\(configuration.frameWidth):-2",
+            "-c:v", "bmp",
+            "-f", "rawvideo",
             outputPath
         ]
-
-        try runFFmpegProcess(
-            process,
-            launchFailureReason: "Failed to launch ffmpeg",
-            exitFailureReason: "ffmpeg",
-            failureReason: HashError.frameExtractionFailed
-        )
     }
 
-    /// Extract all sample frames and tile them into a grayscale sprite in a single
-    /// ffmpeg process: one `-ss`/`-i` pair per sample time (each still seeks and
-    /// decodes independently, matching the per-frame timestamps of the old
-    /// multi-process pipeline), joined by a filter_complex that scales each frame,
-    /// tiles them into the sprite grid, then resizes and converts to grayscale.
-    private func runFFmpegExtractAndTile(
+    private func runFFmpegBatchExtraction(
         ffmpegPath: String,
         videoPath: String,
         sampleTimes: [Double],
-        outputPath: String
+        outputPaths: [String]
     ) throws {
-        var arguments = ["-v", "error"]
+        var arguments = ["-v", "error", "-y"]
         for time in sampleTimes {
-            arguments += ["-ss", String(format: "%.6f", time), "-i", videoPath]
+            arguments += ["-ss", formatSeekTime(time), "-i", videoPath]
         }
-
-        var filterParts: [String] = []
-        for index in 0..<sampleTimes.count {
-            filterParts.append("[\(index):v]scale=\(configuration.frameWidth):-1[v\(index)]")
+        for (index, outputPath) in outputPaths.enumerated() {
+            // `V` skips attached pictures (cover art), like ffmpeg's default stream selection.
+            arguments += ["-map", "\(index):V:0"] + frameOutputArguments(outputPath: outputPath)
         }
-        // `tile` consumes consecutive frames from a single stream (it has no
-        // multi-pad form like hstack/vstack), so the per-frame streams must be
-        // concatenated into one stream before tiling.
-        let concatInputs = (0..<sampleTimes.count).map { "[v\($0)]" }.joined()
-        filterParts.append("\(concatInputs)concat=n=\(sampleTimes.count):v=1:a=0[allframes]")
-        filterParts.append(
-            "[allframes]tile=\(configuration.spriteColumns)x\(configuration.spriteRows):padding=0:margin=0[tiled]"
-        )
-        filterParts.append(
-            "[tiled]scale=\(configuration.dctSize):\(configuration.dctSize):flags=bilinear,format=gray[out]"
-        )
-
-        arguments += [
-            "-filter_complex", filterParts.joined(separator: ";"),
-            "-map", "[out]",
-            "-frames:v", "1",
-            "-f", "rawvideo",
-            "-pix_fmt", "gray",
-            "-y", outputPath
-        ]
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: ffmpegPath)
         process.arguments = arguments
 
-        try runFFmpegProcess(
+        try runCheckedFFmpegProcess(
             process,
-            launchFailureReason: "Failed to launch ffmpeg extract+tile",
-            exitFailureReason: "ffmpeg extract+tile",
-            failureReason: HashError.processingFailed
+            launchFailureReason: "Failed to launch ffmpeg",
+            exitFailureReason: "ffmpeg batch frame extraction",
+            failureReason: HashError.frameExtractionFailed
         )
     }
 
-    private func runFFmpegTilePreprocess(
+    private func extractSingleFrame(
         ffmpegPath: String,
-        inputPattern: String,
-        outputPath: String
-    ) throws {
+        videoPath: String,
+        timestamp: Double,
+        outputURL: URL,
+        slowSeek: Bool
+    ) throws -> RGBImage {
+        let seek = ["-ss", formatSeekTime(timestamp)]
+        var arguments = ["-v", "error", "-y"]
+        arguments += slowSeek ? ["-i", videoPath] + seek : seek + ["-i", videoPath]
+        arguments += frameOutputArguments(outputPath: outputURL.path)
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: ffmpegPath)
-        process.arguments = [
-            "-v", "error",
-            "-framerate", "1",
-            "-i", inputPattern,
-            "-frames:v", "1",
-            "-vf", "tile=\(configuration.spriteColumns)x\(configuration.spriteRows):padding=0:margin=0,scale=\(configuration.dctSize):\(configuration.dctSize):flags=bilinear,format=gray",
-            "-f", "rawvideo",
-            "-pix_fmt", "gray",
-            "-y",
-            outputPath
-        ]
+        process.arguments = arguments
 
-        try runFFmpegProcess(
+        try? FileManager.default.removeItem(at: outputURL)
+        try runCheckedFFmpegProcess(
             process,
-            launchFailureReason: "Failed to launch ffmpeg tile preprocess",
-            exitFailureReason: "ffmpeg tile preprocess",
-            failureReason: HashError.processingFailed
+            launchFailureReason: "Failed to launch ffmpeg",
+            exitFailureReason: "ffmpeg",
+            failureReason: HashError.frameExtractionFailed
         )
+        return try BMPDecoder.decode(Data(contentsOf: outputURL))
+    }
+
+    private func runCheckedFFmpegProcess(
+        _ process: Process,
+        launchFailureReason: String,
+        exitFailureReason: String,
+        failureReason: (String) -> HashError
+    ) throws {
+        let (status, stderrOutput) = try runFFmpegProcess(
+            process,
+            launchFailureReason: launchFailureReason,
+            failureReason: failureReason
+        )
+        guard status == 0 else {
+            let message = stderrOutput.isEmpty ? "unknown ffmpeg error" : stderrOutput
+            throw failureReason("\(exitFailureReason) exited with status \(status): \(message)")
+        }
     }
 
     /// Runs an ffmpeg process, draining stderr to a temp file as it writes rather than
@@ -291,12 +286,12 @@ actor FrameExtractor: Sendable {
     /// (thousands of "Invalid NAL unit size" lines even at `-v error`), so reading the pipe
     /// only after exit deadlocks: ffmpeg blocks on write() while nothing drains the pipe, and
     /// waitUntilExit() never returns.
+    /// - Returns: The exit status and the trimmed stderr output
     private func runFFmpegProcess(
         _ process: Process,
         launchFailureReason: String,
-        exitFailureReason: String,
         failureReason: (String) -> HashError
-    ) throws {
+    ) throws -> (status: Int32, stderr: String) {
         let fileManager = FileManager.default
         let stderrURL = fileManager.temporaryDirectory.appendingPathComponent(
             "videohash-ffmpeg-stderr-\(UUID().uuidString).log"
@@ -312,6 +307,7 @@ actor FrameExtractor: Sendable {
 
         process.standardError = stderrHandle
         process.standardOutput = FileHandle.nullDevice
+        process.standardInput = FileHandle.nullDevice
 
         do {
             try process.run()
@@ -322,14 +318,10 @@ actor FrameExtractor: Sendable {
         }
         try? stderrHandle.close()
 
-        guard process.terminationStatus == 0 else {
-            let stderrData = (try? Data(contentsOf: stderrURL)) ?? Data()
-            let stderrOutput = String(data: stderrData, encoding: .utf8)?
-                .trimmingCharacters(in: .whitespacesAndNewlines) ?? "unknown ffmpeg error"
-            throw failureReason(
-                "\(exitFailureReason) exited with status \(process.terminationStatus): \(stderrOutput)"
-            )
-        }
+        let stderrData = (try? Data(contentsOf: stderrURL)) ?? Data()
+        let stderrOutput = String(data: stderrData, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return (process.terminationStatus, stderrOutput)
     }
 
     private func resolveFFmpegPath() throws -> String {

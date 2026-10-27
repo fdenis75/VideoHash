@@ -43,22 +43,14 @@ actor PHashGenerator: Sendable {
 
         let videoAsset = asset ?? AVURLAsset(url: url)
 
-        let pixels: [Float]
-        if configuration.useFFmpegFrameExtraction {
-            // Compatibility path: emulate videohashes preprocessing through ffmpeg.
-            logger.debug("Phase 1: Extracting and preprocessing frames with ffmpeg")
-            pixels = try await frameExtractor.extractPreprocessedPixels(from: videoAsset, url: url)
-        } else {
-            // Native path: AVFoundation extraction + CoreGraphics sprite processing.
-            logger.debug("Phase 1: Extracting frames")
-            let frames = try await frameExtractor.extractFrames(from: videoAsset, url: url)
+        logger.debug("Phase 1: Extracting frames")
+        let frames = try await frameExtractor.extractFrames(from: videoAsset, url: url)
 
-            logger.debug("Phase 2: Composing sprite")
-            let sprite = try await spriteComposer.composeSprite(from: frames)
+        logger.debug("Phase 2: Composing sprite")
+        let sprite = try await spriteComposer.composeSprite(from: frames)
 
-            logger.debug("Phase 3: Processing image")
-            pixels = try await imageProcessor.processImage(sprite)
-        }
+        logger.debug("Phase 3: Processing image")
+        let pixels = try await imageProcessor.processImage(sprite)
 
         // Phase 4: Apply DCT
         logger.debug("Phase 4: Applying DCT")

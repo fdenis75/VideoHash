@@ -4,7 +4,7 @@ import Testing
 
 @Suite("PHash HashComputer Tests")
 struct PHashHashComputerTests {
-    @Test("PHash uses >= median and returns non-padded hex")
+    @Test("PHash uses > median and returns non-padded hex")
     func testMedianThresholdAndHexFormatting() async throws {
         let config = HashConfiguration(
             frameCount: 25,
@@ -13,19 +13,34 @@ struct PHashHashComputerTests {
             spriteRows: 5,
             dctSize: 8,
             hashSize: 8,
-            useAccelerate: false,
             useFFmpegFrameExtraction: false
         )
         let computer = HashComputer(configuration: config)
 
         // 31 lows, 2 middle values, 31 highs => median == 5 exactly.
-        // With >= median, the two middle values must map to 1 bits.
-        let coefficients = ([Float](repeating: 0, count: 31)
-            + [Float](repeating: 5, count: 2)
-            + [Float](repeating: 10, count: 31))
+        // As in goimagehash, values equal to the median map to 0 bits.
+        let coefficients = ([Double](repeating: 0, count: 31)
+            + [Double](repeating: 5, count: 2)
+            + [Double](repeating: 10, count: 31))
 
         let hash = try await computer.computeHash(from: coefficients)
 
-        #expect(hash == "1ffffffff")
+        #expect(hash == "7fffffff")
+    }
+
+    @Test("Median matches goimagehash MedianOfPixels")
+    func testMedian() {
+        // Expected values produced by goimagehash v1.0.3 etcs.MedianOfPixels.
+        #expect(HashComputer.median(of: [9, 1, 8, 2, 7, 3, 6, 4, 5, 0, 12, 11]) == 5.5)
+        #expect(HashComputer.median(of: (0..<64).map { Double(($0 * 37) % 64) }) == 31.5)
+        #expect(HashComputer.median(of: [3, 1, 2]) == 2)
+    }
+
+    @Test("Rejects wrong coefficient count")
+    func testInvalidCoefficientCount() async {
+        let computer = HashComputer(configuration: .default)
+        await #expect(throws: HashError.self) {
+            try await computer.computeHash(from: [Double](repeating: 0, count: 10))
+        }
     }
 }

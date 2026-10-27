@@ -19,7 +19,7 @@ The default PHash pipeline is compatibility-focused and matches `peolic/videohas
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/fdenis75/VideoHash.git", from: "0.2.0")
+    .package(url: "https://github.com/fdenis75/VideoHash.git", from: "0.3.0")
 ]
 ```
 
@@ -65,9 +65,8 @@ let config = HashConfiguration(
     frameWidth: 160,
     spriteColumns: 5,
     spriteRows: 5,
-    dctSize: 32,
+    dctSize: 64,
     hashSize: 8,
-    useAccelerate: false,
     useFFmpegFrameExtraction: true,
     ffmpegPath: nil
 )

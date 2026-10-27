@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CoreGraphics
 import Logging
 
 /// Composes extracted frames into a sprite grid image
@@ -19,10 +18,14 @@ actor SpriteComposer: Sendable {
     }
 
     /// Compose frames into a sprite grid
-    /// - Parameter frames: Array of extracted CGImages
-    /// - Returns: CGImage containing all frames arranged in a grid
+    ///
+    /// Mirrors stash's `combineImages`: cell size is taken from the first frame,
+    /// frames are pasted left to right, top to bottom on a black canvas, and any
+    /// frame larger than its cell is clipped by the canvas bounds only.
+    /// - Parameter frames: Extracted frames
+    /// - Returns: Sprite containing all frames arranged in a grid
     /// - Throws: HashError if sprite creation fails
-    func composeSprite(from frames: [CGImage]) async throws -> CGImage {
+    func composeSprite(from frames: [RGBImage]) async throws -> RGBImage {
         guard frames.count >= configuration.frameCount else {
             throw HashError.insufficientFrames(
                 expected: configuration.frameCount,
@@ -37,54 +40,32 @@ actor SpriteComposer: Sendable {
             throw HashError.processingFailed(reason: "No frames provided for sprite composition")
         }
 
-        // Match videohashes sprite behavior: preserve extracted frame dimensions.
         let cellWidth = firstFrame.width
         let cellHeight = firstFrame.height
+        var sprite = RGBImage(width: cellWidth * columns, height: cellHeight * rows)
 
-        // Calculate sprite dimensions
-        let spriteWidth = cellWidth * columns
-        let spriteHeight = cellHeight * rows
+        logger.debug("Creating \(sprite.width)x\(sprite.height) sprite with \(rows)x\(columns) grid")
 
-        logger.debug("Creating \(spriteWidth)x\(spriteHeight) sprite with \(rows)x\(columns) grid")
-
-        // Create bitmap context
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGImageAlphaInfo.noneSkipLast.rawValue
-
-        guard let context = CGContext(
-            data: nil,
-            width: spriteWidth,
-            height: spriteHeight,
-            bitsPerComponent: 8,
-            bytesPerRow: spriteWidth * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
-            logger.error("Failed to create CGContext")
-            throw HashError.processingFailed(reason: "Failed to create sprite context")
-        }
-
-        // Fill with black background
-        context.setFillColor(CGColor(red: 0, green: 0, blue: 0, alpha: 1))
-        context.fill(CGRect(x: 0, y: 0, width: spriteWidth, height: spriteHeight))
-
-        // Draw frames in grid (top to bottom, left to right)
         for frameIndex in 0..<min(frames.count, rows * columns) {
             let frame = frames[frameIndex]
-            let x = (frameIndex % columns) * cellWidth
-            let y = (frameIndex / columns) * cellHeight
-            let destRect = CGRect(x: x, y: y, width: cellWidth, height: cellHeight)
-            context.draw(frame, in: destRect)
+            let originX = (frameIndex % columns) * cellWidth
+            let originY = (frameIndex / columns) * cellHeight
+            let copyWidth = min(frame.width, sprite.width - originX)
+            let copyHeight = min(frame.height, sprite.height - originY)
+            guard copyWidth > 0, copyHeight > 0 else { continue }
+
+            for y in 0..<copyHeight {
+                let source = y * frame.width * 3
+                let destination = ((originY + y) * sprite.width + originX) * 3
+                sprite.pixels.replaceSubrange(
+                    destination..<(destination + copyWidth * 3),
+                    with: frame.pixels[source..<(source + copyWidth * 3)]
+                )
+            }
         }
 
-        // Create final sprite image
-        guard let spriteImage = context.makeImage() else {
-            logger.error("Failed to create sprite image")
-            throw HashError.processingFailed(reason: "Failed to create sprite image")
-        }
+        logger.info("Created sprite: \(sprite.width)x\(sprite.height)")
 
-        logger.info("Created sprite: \(spriteImage.width)x\(spriteImage.height)")
-
-        return spriteImage
+        return sprite
     }
 }
