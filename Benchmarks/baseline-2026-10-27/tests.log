@@ -1,0 +1,75 @@
+Building for production...
+[Pre-planning 1 / 212]
+[Planning deferred tasks]
+[1 / 6]
+[2 / 2] VideoHashTests-product
+[7 / 12] hash-benchmark-product
+[9 / 13] hash-benchmark-product
+[11 / 13] hash-benchmark-product
+[12 / 13] hash-benchmark-product
+Build complete! (11,27 s)
+Test Suite 'All tests' started at 2026-10-27 16:10:05.947.
+Test Suite 'All tests' passed at 2026-10-27 16:10:05.948.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+􀟈  Test run started.
+􀄵  Testing Library Version: 2084
+􀄵  Target Platform: arm64e-apple-macos14.0
+􀟈  Suite "FFmpeg Path Resolver Tests" started.
+􀟈  Suite "OSHash Generation Tests" started.
+􀟈  Suite "Hash Batch Planner Tests" started.
+􀟈  Suite "PHash Reference Parity Tests" started.
+􀟈  Suite "PHash HashComputer Tests" started.
+􀟈  Test "Resolver reports sandbox guidance when ffmpeg cannot be found" started.
+􀟈  Test "OSHash is deterministic" started.
+􀟈  Test "Resolver prefers bundled auxiliary executable before PATH and common locations" started.
+􀟈  Test "Resolver can resolve a configured executable name from the app bundle" started.
+􀟈  Test "BMP decoder rejects malformed input" started.
+􀟈  Test "Planner returns empty output for empty input" started.
+􀟈  Test "Sprite composer rejects missing frames" started.
+􀟈  Test "OSHash throws for file too small" started.
+􀟈  Test "OSHash different for different files" started.
+􀟈  Test "Planner interleaves volumes while preserving in-volume order" started.
+􀟈  Test "BMP decoder handles bottom-up rows, BGR order and row padding" started.
+􀟈  Test "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test "OSHash format is 16 hex characters" started.
+􀟈  Test "Duration is parsed from ffmpeg output with centisecond precision" started.
+􀟈  Test "OSHash incorporates file size" started.
+􀟈  Test "OSHash throws for non-existent file" started.
+􀟈  Test "Sprite composer tiles frames left to right, top to bottom" started.
+􀟈  Test "Median matches goimagehash MedianOfPixels" started.
+􀟈  Test "Rejects wrong coefficient count" started.
+􀟈  Test "PHash uses > median and returns non-padded hex" started.
+􀟈  Test case passing 4 arguments width → 800, height → 450, seed → 1, expected → "80012f3f3f3c7879" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 800, height → 1420, seed → 2, expected → "80126e00ff07b77f" to "Sprite hash matches goimagehash PerceptionHash" started.
+2026-10-27T16:10:06+0100 error com.videohash.oshash: [VideoHash] File not found: /tmp/does_not_exist_6C36F64A-06EA-4E0E-A924-D0CB99F570BF.bin
+2026-10-27T16:10:06+0100 info com.videohash.phash: [VideoHash] Created sprite: 4x2
+􀟈  Test case passing 4 arguments width → 800, height → 640, seed → 3, expected → "d0e480a783df0f1f" to "Sprite hash matches goimagehash PerceptionHash" started.
+2026-10-27T16:10:06+0100 error com.videohash.oshash: [VideoHash] File too small for OSHash: 1024 bytes
+􀟈  Test case passing 4 arguments width → 64, height → 64, seed → 4, expected → "b3250fda2c59d529" to "Sprite hash matches goimagehash PerceptionHash" started.
+􁁛  Test "Resolver can resolve a configured executable name from the app bundle" passed after 0.004 seconds.
+􁁛  Test "Resolver prefers bundled auxiliary executable before PATH and common locations" passed after 0.004 seconds.
+􀟈  Test case passing 4 arguments width → 37, height → 23, seed → 5, expected → "c812b61db535b617" to "Sprite hash matches goimagehash PerceptionHash" started.
+􁁛  Test "Resolver reports sandbox guidance when ffmpeg cannot be found" passed after 0.005 seconds.
+􁁛  Test "Planner returns empty output for empty input" passed after 0.005 seconds.
+􁁛  Test "BMP decoder handles bottom-up rows, BGR order and row padding" passed after 0.005 seconds.
+􁁛  Test "Planner interleaves volumes while preserving in-volume order" passed after 0.005 seconds.
+􁁛  Test "Sprite composer rejects missing frames" passed after 0.005 seconds.
+􁁛  Test "BMP decoder rejects malformed input" passed after 0.005 seconds.
+􁁛  Test "Duration is parsed from ffmpeg output with centisecond precision" passed after 0.005 seconds.
+􁁛  Test "OSHash throws for non-existent file" passed after 0.005 seconds.
+􁁛  Test "Sprite composer tiles frames left to right, top to bottom" passed after 0.005 seconds.
+􁁛  Test "OSHash throws for file too small" passed after 0.005 seconds.
+􁁛  Test "Median matches goimagehash MedianOfPixels" passed after 0.004 seconds.
+􁁛  Test "Rejects wrong coefficient count" passed after 0.004 seconds.
+􁁛  Test "PHash uses > median and returns non-padded hex" passed after 0.004 seconds.
+􁁛  Suite "FFmpeg Path Resolver Tests" passed after 0.005 seconds.
+􁁛  Suite "Hash Batch Planner Tests" passed after 0.005 seconds.
+􁁛  Suite "PHash HashComputer Tests" passed after 0.005 seconds.
+􁁛  Test "OSHash format is 16 hex characters" passed after 0.012 seconds.
+􁁛  Test "Sprite hash matches goimagehash PerceptionHash" with 5 test cases passed after 0.012 seconds.
+􁁛  Suite "PHash Reference Parity Tests" passed after 0.012 seconds.
+􁁛  Test "OSHash incorporates file size" passed after 0.020 seconds.
+􁁛  Test "OSHash different for different files" passed after 0.021 seconds.
+􁁛  Test "OSHash is deterministic" passed after 0.025 seconds.
+􁁛  Suite "OSHash Generation Tests" passed after 0.025 seconds.
+􁁛  Test run with 20 tests in 5 suites passed after 0.025 seconds.

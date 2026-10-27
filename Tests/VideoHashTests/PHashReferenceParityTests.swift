@@ -20,11 +20,11 @@ struct PHashReferenceParityTests {
         return image
     }
 
-    private static func hash(_ sprite: RGBImage) async throws -> String {
+    private static func hash(_ sprite: RGBImage) throws -> String {
         let configuration = HashConfiguration.default
-        let pixels = try await ImageProcessor(configuration: configuration).processImage(sprite)
-        let coefficients = try await DCTProcessor(configuration: configuration).applyDCT(to: pixels)
-        return try await HashComputer(configuration: configuration).computeHash(from: coefficients)
+        let pixels = try ImageProcessor(configuration: configuration).processImage(sprite)
+        let coefficients = try DCTProcessor(configuration: configuration).applyDCT(to: pixels)
+        return try HashComputer(configuration: configuration).computeHash(from: coefficients)
     }
 
     @Test(
@@ -37,19 +37,19 @@ struct PHashReferenceParityTests {
             (37, 23, 5, "c812b61db535b617"),  // Upscale
         ]
     )
-    func testMatchesReference(width: Int, height: Int, seed: Int, expected: String) async throws {
-        let hash = try await Self.hash(Self.pattern(width: width, height: height, seed: seed))
+    func testMatchesReference(width: Int, height: Int, seed: Int, expected: String) throws {
+        let hash = try Self.hash(Self.pattern(width: width, height: height, seed: seed))
         #expect(hash == expected)
     }
 
     @Test("Sprite composer tiles frames left to right, top to bottom")
-    func testSpriteLayout() async throws {
+    func testSpriteLayout() throws {
         let configuration = HashConfiguration(frameCount: 4, spriteColumns: 2, spriteRows: 2)
         let frames = (0..<4).map { index in
             RGBImage(width: 2, height: 1, pixels: [UInt8](repeating: UInt8(index * 10 + 10), count: 6))
         }
 
-        let sprite = try await SpriteComposer(configuration: configuration).composeSprite(from: frames)
+        let sprite = try SpriteComposer(configuration: configuration).composeSprite(from: frames)
 
         #expect(sprite.width == 4)
         #expect(sprite.height == 2)
@@ -58,10 +58,10 @@ struct PHashReferenceParityTests {
     }
 
     @Test("Sprite composer rejects missing frames")
-    func testSpriteInsufficientFrames() async {
+    func testSpriteInsufficientFrames() {
         let composer = SpriteComposer(configuration: .default)
-        await #expect(throws: HashError.self) {
-            try await composer.composeSprite(from: [RGBImage(width: 1, height: 1)])
+        #expect(throws: HashError.self) {
+            try composer.composeSprite(from: [RGBImage(width: 1, height: 1)])
         }
     }
 

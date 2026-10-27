@@ -5,7 +5,7 @@ import Testing
 @Suite("PHash HashComputer Tests")
 struct PHashHashComputerTests {
     @Test("PHash uses > median and returns non-padded hex")
-    func testMedianThresholdAndHexFormatting() async throws {
+    func testMedianThresholdAndHexFormatting() throws {
         let config = HashConfiguration(
             frameCount: 25,
             frameWidth: 160,
@@ -23,7 +23,7 @@ struct PHashHashComputerTests {
             + [Double](repeating: 5, count: 2)
             + [Double](repeating: 10, count: 31))
 
-        let hash = try await computer.computeHash(from: coefficients)
+        let hash = try computer.computeHash(from: coefficients)
 
         #expect(hash == "7fffffff")
     }
@@ -37,10 +37,10 @@ struct PHashHashComputerTests {
     }
 
     @Test("Rejects wrong coefficient count")
-    func testInvalidCoefficientCount() async {
+    func testInvalidCoefficientCount() {
         let computer = HashComputer(configuration: .default)
-        await #expect(throws: HashError.self) {
-            try await computer.computeHash(from: [Double](repeating: 0, count: 10))
+        #expect(throws: HashError.self) {
+            try computer.computeHash(from: [Double](repeating: 0, count: 10))
         }
     }
 }

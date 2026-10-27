@@ -1,0 +1,6 @@
+{
+  "file": "/Volumes/Ext-6TB-2/HashTestVids/V1.mp4",
+  "offset": 553342975,
+  "bytes_read": 4096,
+  "note": "Source read after preflight purge, before all measured cases; controller caches remain uncontrolled."
+}

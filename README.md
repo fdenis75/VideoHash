@@ -53,9 +53,13 @@ let urls: [URL] = [
 
 let results = try await generator.generateHashes(
     for: urls,
-    maxConcurrentTasks: 4
+    maxConcurrentTasks: 2
 )
 ```
+
+Single-video calls on one shared generator can overlap. If your client already limits concurrency, call the single-video API from that helper. Batch limits apply to each invocation independently; repeated URLs are separate jobs. On the six-video mechanical-drive benchmark, two concurrent videos was a useful starting point; measure your own workload before increasing it.
+
+Cancelling a request throws `CancellationError`, stops extraction retries, and cleans up its owned subprocesses and temporary files. FFmpeg gets a one-second grace period before forced termination if needed. File reads and synchronous processing observe cancellation at operation boundaries. Include FFmpeg child processes when measuring memory usage. Extraction uses sequential groups of at most ten seeked inputs per FFmpeg process, limiting decoder memory without changing the sample times or hash.
 
 ## Configuration
 

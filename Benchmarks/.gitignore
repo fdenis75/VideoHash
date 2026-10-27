@@ -1,0 +1,8 @@
+# Consolidated results, environment records, reports and selected verification
+# logs are versioned. Per-case duplicates and verbose output remain local.
+**/*.log
+!**/tests.log
+!**/buffer-tests.log
+**/[1-9]-*.json
+**/*-r[0-9]*/results.json
+__pycache__/

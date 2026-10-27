@@ -9,7 +9,7 @@ import Foundation
 import Logging
 
 /// Composes extracted frames into a sprite grid image
-actor SpriteComposer: Sendable {
+struct SpriteComposer: Sendable {
     private let configuration: HashConfiguration
     private let logger = Logger.phash
 
@@ -25,7 +25,7 @@ actor SpriteComposer: Sendable {
     /// - Parameter frames: Extracted frames
     /// - Returns: Sprite containing all frames arranged in a grid
     /// - Throws: HashError if sprite creation fails
-    func composeSprite(from frames: [RGBImage]) async throws -> RGBImage {
+    func composeSprite(from frames: [RGBImage]) throws -> RGBImage {
         guard frames.count >= configuration.frameCount else {
             throw HashError.insufficientFrames(
                 expected: configuration.frameCount,

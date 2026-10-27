@@ -1,0 +1,365 @@
+[
+  {
+    "concurrency": 1,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 2.656268458
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.085035833
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.640977
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 1.940889917
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.121029959
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.087803459
+      }
+    ],
+    "mode": "combined",
+    "seconds": 9.532281083,
+    "purge_succeeded": false,
+    "purge_seconds": null,
+    "repeat": 1,
+    "peak_parent_rss_kib": 28736,
+    "peak_tree_rss_kib": 2386240,
+    "peak_child_count": 1,
+    "samples": 69,
+    "process_wall_seconds": 9.74849733299925
+  },
+  {
+    "concurrency": 1,
+    "measurements": [
+      {
+        "file": "V1.mp4",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 2.534004625
+      },
+      {
+        "file": "V2.mp4",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 0.94675725
+      },
+      {
+        "file": "V3.mp4",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.803104042
+      },
+      {
+        "file": "V4.mp4",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 1.784087708
+      },
+      {
+        "file": "V5.mp4",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.039840542
+      },
+      {
+        "file": "V6.mp4",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 0.969845375
+      }
+    ],
+    "mode": "phash",
+    "seconds": 9.077913333,
+    "purge_succeeded": false,
+    "purge_seconds": null,
+    "repeat": 1,
+    "peak_parent_rss_kib": 29792,
+    "peak_tree_rss_kib": 2104272,
+    "peak_child_count": 1,
+    "samples": 58,
+    "process_wall_seconds": 9.156825457990635
+  },
+  {
+    "concurrency": 1,
+    "measurements": [
+      {
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "seconds": 0.008351083
+      },
+      {
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "seconds": 0.006030209
+      },
+      {
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "seconds": 0.005882083
+      },
+      {
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "seconds": 0.005863667
+      },
+      {
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "seconds": 0.005730292
+      },
+      {
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "seconds": 0.005212667
+      }
+    ],
+    "mode": "oshash",
+    "seconds": 0.037267542,
+    "purge_succeeded": false,
+    "purge_seconds": null,
+    "repeat": 1,
+    "peak_parent_rss_kib": 5360,
+    "peak_tree_rss_kib": 5360,
+    "peak_child_count": 0,
+    "samples": 1,
+    "process_wall_seconds": 0.12832700001308694
+  },
+  {
+    "concurrency": 2,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d"
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2"
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99"
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030"
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a"
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc"
+      }
+    ],
+    "mode": "batch",
+    "seconds": 7.685797292,
+    "purge_succeeded": false,
+    "purge_seconds": null,
+    "repeat": 1,
+    "peak_parent_rss_kib": 31904,
+    "peak_tree_rss_kib": 2927312,
+    "peak_child_count": 2,
+    "samples": 44,
+    "process_wall_seconds": 7.763765291980235
+  },
+  {
+    "concurrency": 2,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 4.896064208
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.145807166
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 3.35820175
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.8420734579999998
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.96061525
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.393397791
+      }
+    ],
+    "mode": "client",
+    "seconds": 8.250809958,
+    "purge_succeeded": false,
+    "purge_seconds": null,
+    "repeat": 1,
+    "peak_parent_rss_kib": 35040,
+    "peak_tree_rss_kib": 3203888,
+    "peak_child_count": 2,
+    "samples": 44,
+    "process_wall_seconds": 8.357689957978437
+  },
+  {
+    "concurrency": 4,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d"
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2"
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99"
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030"
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a"
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc"
+      }
+    ],
+    "mode": "batch",
+    "seconds": 9.841321333,
+    "purge_succeeded": false,
+    "purge_seconds": null,
+    "repeat": 1,
+    "peak_parent_rss_kib": 30688,
+    "peak_tree_rss_kib": 2638768,
+    "peak_child_count": 4,
+    "samples": 42,
+    "process_wall_seconds": 9.880000208999263
+  },
+  {
+    "concurrency": 4,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 10.491540833
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 3.291673042
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 3.092264625
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 10.5699995
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 7.408682166
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 8.015874333
+      }
+    ],
+    "mode": "client",
+    "seconds": 11.307796167,
+    "purge_succeeded": false,
+    "purge_seconds": null,
+    "repeat": 1,
+    "peak_parent_rss_kib": 38304,
+    "peak_tree_rss_kib": 3144240,
+    "peak_child_count": 4,
+    "samples": 42,
+    "process_wall_seconds": 11.359187166002812
+  }
+]

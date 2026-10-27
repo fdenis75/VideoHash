@@ -1,0 +1,44 @@
+[
+  {
+    "duration": 3310.674,
+    "file": "V1.mp4",
+    "oshash": "8f0b4a25ceaf96c8",
+    "phash": "e6e2e0e6e2e2e04d",
+    "sha256": "ed49c209cbc0288707e8679f78f64a7ea66a38f29bb61a7063aa2c7bfa307d00"
+  },
+  {
+    "duration": 525,
+    "file": "V2.mp4",
+    "oshash": "d718ecc60e04593a",
+    "phash": "d5e26411f679a2e2",
+    "sha256": "2ce9df78c54ae08e6272c4af51e78a753f50a9a8e3a8f32c1d31c451c8dbb3d9"
+  },
+  {
+    "duration": 2001.048,
+    "file": "V3.mp4",
+    "oshash": "1e5c53bdc1ceba12",
+    "phash": "a03f55c4469dba99",
+    "sha256": "d98659a84909d5c06f922b8ee51c944f2fbecae0679a50b06eb0d87da0f67285"
+  },
+  {
+    "duration": 3421.618,
+    "file": "V4.mp4",
+    "oshash": "686064db3eafb762",
+    "phash": "d2f868f8e87eb030",
+    "sha256": "2d13f9b42dd2c149d548f767b4bc29795fb2f9527045cd30965153a09e9ddd9f"
+  },
+  {
+    "duration": 2795.76,
+    "file": "V5.mp4",
+    "oshash": "bd3ed665e2f76e1f",
+    "phash": "8c98873d8e3e636a",
+    "sha256": "65feebff1ef18647a3930c0d3ec56aa35d30d0476a68080c0f3c2599ef1f9468"
+  },
+  {
+    "duration": 3017.533,
+    "file": "V6.mp4",
+    "oshash": "9141445d9de673a2",
+    "phash": "b724a198db7ac4cc",
+    "sha256": "b0523c9efebe554ecdd0ddbcc3ad5949fac079b7906db758eafb28bbeb1e7927"
+  }
+]

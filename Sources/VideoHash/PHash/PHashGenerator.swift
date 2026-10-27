@@ -17,16 +17,14 @@ import Logging
 actor PHashGenerator: Sendable {
     private let configuration: HashConfiguration
     private let frameExtractor: FrameExtractor
-    private let spriteComposer: SpriteComposer
     private let imageProcessor: ImageProcessor
     private let dctProcessor: DCTProcessor
     private let hashComputer: HashComputer
     private let logger = Logger.phash
 
-    init(configuration: HashConfiguration) {
+    init(configuration: HashConfiguration, extractionPolicy: FFmpegExtractionPolicy = .production) {
         self.configuration = configuration
-        self.frameExtractor = FrameExtractor(configuration: configuration)
-        self.spriteComposer = SpriteComposer(configuration: configuration)
+        self.frameExtractor = FrameExtractor(configuration: configuration, extractionPolicy: extractionPolicy)
         self.imageProcessor = ImageProcessor(configuration: configuration)
         self.dctProcessor = DCTProcessor(configuration: configuration)
         self.hashComputer = HashComputer(configuration: configuration)
@@ -43,25 +41,27 @@ actor PHashGenerator: Sendable {
 
         let videoAsset = asset ?? AVURLAsset(url: url)
 
+        try Task.checkCancellation()
         logger.debug("Phase 1: Extracting frames")
-        let frames = try await frameExtractor.extractFrames(from: videoAsset, url: url)
+        let sprite = try await frameExtractor.extractSprite(from: videoAsset, url: url)
 
-        logger.debug("Phase 2: Composing sprite")
-        let sprite = try await spriteComposer.composeSprite(from: frames)
-
+        try Task.checkCancellation()
         logger.debug("Phase 3: Processing image")
-        let pixels = try await imageProcessor.processImage(sprite)
+        let pixels = try imageProcessor.processImage(sprite)
 
         // Phase 4: Apply DCT
+        try Task.checkCancellation()
         logger.debug("Phase 4: Applying DCT")
-        let dctCoeffs = try await dctProcessor.applyDCT(to: pixels)
+        let dctCoeffs = try dctProcessor.applyDCT(to: pixels)
 
         // Phase 5: Compute hash
+        try Task.checkCancellation()
         logger.debug("Phase 5: Computing hash")
-        let hash = try await hashComputer.computeHash(from: dctCoeffs)
+        let hash = try hashComputer.computeHash(from: dctCoeffs)
 
         logger.info("Generated PHash: \(hash)")
 
+        try Task.checkCancellation()
         return hash
     }
 }

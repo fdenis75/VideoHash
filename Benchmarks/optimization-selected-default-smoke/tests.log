@@ -1,0 +1,337 @@
+Building for production...
+[Using on-disk description]
+[1 / 1]
+[2 / 5] VideoHash
+[3 / 6] VideoHash
+[14 / 21] VideoHash-product
+[14 / 22] test-hash-product
+[16 / 24] hash-benchmark-product
+[18 / 26] TestHash-product
+[20 / 26] TestHash-product
+[20 / 26] test-hash-product
+[22 / 26] hash-benchmark-product
+[24 / 26] test-hash-product
+[25 / 26] hash-benchmark-product
+[25 / 26] test-hash-product
+[28 / 29] TestHash-product
+[32 / 34] hash-benchmark-product
+[33 / 34] VideoHashTests-product
+[38 / 42] VideoHashTests-product
+[40 / 42] VideoHashTests-product
+Build complete! (14,42 s)
+Test Suite 'All tests' started at 2026-10-27 17:28:10.745.
+Test Suite 'All tests' passed at 2026-10-27 17:28:10.747.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.002) seconds
+􀟈  Test run started.
+􀄵  Testing Library Version: 2084
+􀄵  Target Platform: arm64e-apple-macos14.0
+􀟈  Suite FrameExtractionCancellationTests started.
+􀟈  Suite FFmpegProcessRunnerTests started.
+􀟈  Suite "OSHash Generation Tests" started.
+􀟈  Suite VideoHashValidationTests started.
+􀟈  Suite "Hash Batch Planner Tests" started.
+􀟈  Suite FrameExtractionParityTests started.
+􀟈  Suite FFmpegExtractionPolicyTests started.
+􀟈  Suite FrameExtractionFallbackTests started.
+􀟈  Suite "PHash Reference Parity Tests" started.
+􀟈  Suite FFmpegDiagnosticsTests started.
+􀟈  Suite VideoHashIntegrationTests started.
+􀟈  Test testPreCancelledPublicCalls() started.
+􀟈  Test "OSHash is deterministic" started.
+􀟈  Suite "FFmpeg Path Resolver Tests" started.
+􀟈  Test "Planner interleaves volumes while preserving in-volume order" started.
+􀟈  Test "OSHash format is 16 hex characters" started.
+􀟈  Suite SpriteAccumulatorTests started.
+􀟈  Test "OSHash throws for non-existent file" started.
+􀟈  Test "OSHash different for different files" started.
+􀟈  Test testNonVideoFailsValidation() started.
+􀟈  Test "Planner returns empty output for empty input" started.
+􀟈  Test testStreamingMatchesFrameArray(useFFmpeg:) started.
+􀟈  Test testSuccessAndNonzeroExit() started.
+􀟈  Test testProductionPolicyBoundsInputsToTen() started.
+􀟈  Test "OSHash incorporates file size" started.
+􀟈  Test testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) started.
+􀟈  Test testGroupsCoverEachSampleExactlyOnce(limit:) started.
+􀟈  Test testDurationAcrossEveryChunkBoundary() started.
+􀟈  Suite "PHash HashComputer Tests" started.
+􀟈  Test testNoisyProcessDoesNotBlockOnStderr() started.
+􀟈  Test testMissingFilePreservesError() started.
+􀟈  Test testBoundedExcerptAndDurationOutsideExcerpt() started.
+􀟈  Test testMissingMalformedAndFirstDuration() started.
+􀟈  Test "BMP decoder rejects malformed input" started.
+􀟈  Test testInvalidLimitRejected(limit:) started.
+􀟈  Test "OSHash throws for file too small" started.
+􀟈  Test "Sprite composer tiles frames left to right, top to bottom" started.
+􀟈  Test "Sprite composer rejects missing frames" started.
+􀟈  Test testUnboundedPolicyKeepsAllInputsInOneProcess() started.
+􀟈  Test "BMP decoder handles bottom-up rows, BGR order and row padding" started.
+􀟈  Test "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test testAllEntryPointsMatchBaseline() started.
+􀟈  Test "Duration is parsed from ffmpeg output with centisecond precision" started.
+􀟈  Test case passing 1 argument useFFmpeg → true to testStreamingMatchesFrameArray(useFFmpeg:) started.
+2026-10-27T17:28:10+0100 error com.videohash.oshash: [VideoHash] File not found: /tmp/does_not_exist_CBD40C9F-9DAC-47F8-B899-47729CCF8BE4.bin
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] Generating hashes for: /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/5F7F88C8-583F-4871-939C-3787C113E503
+􀟈  Test case passing 1 argument limit → 1 to testGroupsCoverEachSampleExactlyOnce(limit:) started.
+􀟈  Test case passing 1 argument malformedBMP → false to testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) started.
+􀟈  Test case passing 1 argument limit → 5 to testGroupsCoverEachSampleExactlyOnce(limit:) started.
+􀟈  Test case passing 1 argument malformedBMP → true to testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) started.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] Generating hashes for: /videohash-missing-48CAF88C-1676-4F74-AB2A-330FF3080522
+2026-10-27T17:28:10+0100 error com.videohash: [VideoHash] Video file not found: /videohash-missing-48CAF88C-1676-4F74-AB2A-330FF3080522
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] Generating PHash for: /videohash-missing-48CAF88C-1676-4F74-AB2A-330FF3080522
+2026-10-27T17:28:10+0100 error com.videohash: [VideoHash] Video file not found: /videohash-missing-48CAF88C-1676-4F74-AB2A-330FF3080522
+􀟈  Test case passing 1 argument limit → 10 to testGroupsCoverEachSampleExactlyOnce(limit:) started.
+􀟈  Test case passing 1 argument limit → 25 to testGroupsCoverEachSampleExactlyOnce(limit:) started.
+􀟈  Test case passing 1 argument limit → 9223372036854775807 to testGroupsCoverEachSampleExactlyOnce(limit:) started.
+􀟈  Test case passing 1 argument limit → 0 to testInvalidLimitRejected(limit:) started.
+2026-10-27T17:28:10+0100 error com.videohash.oshash: [VideoHash] File too small for OSHash: 1024 bytes
+􀟈  Test case passing 1 argument limit → -1 to testInvalidLimitRejected(limit:) started.
+􀟈  Test "Resolver reports sandbox guidance when ffmpeg cannot be found" started.
+􀟈  Test "Resolver prefers bundled auxiliary executable before PATH and common locations" started.
+2026-10-27T17:28:10+0100 info com.videohash.phash: [VideoHash] Created sprite: 4x2
+􀟈  Test "Resolver can resolve a configured executable name from the app bundle" started.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􀟈  Test testMixedFramesMatchOriginalComposition() started.
+􀟈  Test testBMPTopDownRowsAndTruncation() started.
+􀟈  Test testMissingFramesFailWithActualCount() started.
+􀟈  Test testAVFoundationPaddingAndErrorPrecedence() started.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􀟈  Test case passing 4 arguments width → 800, height → 450, seed → 1, expected → "80012f3f3f3c7879" to "Sprite hash matches goimagehash PerceptionHash" started.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V1.mp4
+􁁛  Test "Planner returns empty output for empty input" passed after 0.050 seconds.
+􀟈  Test case passing 4 arguments width → 800, height → 1420, seed → 2, expected → "80126e00ff07b77f" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 800, height → 640, seed → 3, expected → "d0e480a783df0f1f" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 64, height → 64, seed → 4, expected → "b3250fda2c59d529" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 37, height → 23, seed → 5, expected → "c812b61db535b617" to "Sprite hash matches goimagehash PerceptionHash" started.
+􁁛  Test "Planner interleaves volumes while preserving in-volume order" passed after 0.059 seconds.
+􁁛  Test testProductionPolicyBoundsInputsToTen() passed after 0.059 seconds.
+􁁛  Test "OSHash throws for non-existent file" passed after 0.059 seconds.
+􀟈  Test "Median matches goimagehash MedianOfPixels" started.
+􀟈  Test "PHash uses > median and returns non-padded hex" started.
+􀟈  Test "Rejects wrong coefficient count" started.
+􁁛  Test "OSHash format is 16 hex characters" passed after 0.060 seconds.
+􁁛  Test "OSHash incorporates file size" passed after 0.060 seconds.
+􁁛  Test testMissingFilePreservesError() passed after 0.060 seconds.
+􁁛  Test "OSHash different for different files" passed after 0.060 seconds.
+􁁛  Test testMissingMalformedAndFirstDuration() passed after 0.060 seconds.
+􁁛  Test "BMP decoder rejects malformed input" passed after 0.060 seconds.
+􁁛  Test testInvalidLimitRejected(limit:) with 2 test cases passed after 0.060 seconds.
+􁁛  Test "OSHash throws for file too small" passed after 0.061 seconds.
+􁁛  Test "Sprite composer tiles frames left to right, top to bottom" passed after 0.060 seconds.
+􁁛  Test "OSHash is deterministic" passed after 0.061 seconds.
+􁁛  Test testGroupsCoverEachSampleExactlyOnce(limit:) with 5 test cases passed after 0.060 seconds.
+􁁛  Test testUnboundedPolicyKeepsAllInputsInOneProcess() passed after 0.060 seconds.
+2026-10-27T17:28:10+0100 info com.videohash.phash: [VideoHash] Created sprite: 6x4
+2026-10-27T17:28:10+0100 info com.videohash.phash: [VideoHash] Created sprite: 2x2
+􁁛  Test "BMP decoder handles bottom-up rows, BGR order and row padding" passed after 0.061 seconds.
+􁁛  Test "Sprite composer rejects missing frames" passed after 0.061 seconds.
+􁁛  Test "Duration is parsed from ffmpeg output with centisecond precision" passed after 0.061 seconds.
+􁁛  Test testBoundedExcerptAndDurationOutsideExcerpt() passed after 0.061 seconds.
+􁁛  Test "Resolver reports sandbox guidance when ffmpeg cannot be found" passed after 0.017 seconds.
+􁁛  Test "Resolver prefers bundled auxiliary executable before PATH and common locations" passed after 0.017 seconds.
+􁁛  Test "Resolver can resolve a configured executable name from the app bundle" passed after 0.017 seconds.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􁁛  Test testMixedFramesMatchOriginalComposition() passed after 0.016 seconds.
+􁁛  Test testBMPTopDownRowsAndTruncation() passed after 0.016 seconds.
+􁁛  Test testMissingFramesFailWithActualCount() passed after 0.016 seconds.
+􁁛  Test testAVFoundationPaddingAndErrorPrecedence() passed after 0.016 seconds.
+􁁛  Suite "Hash Batch Planner Tests" passed after 0.062 seconds.
+􁁛  Suite FFmpegExtractionPolicyTests passed after 0.062 seconds.
+􁁛  Suite "OSHash Generation Tests" passed after 0.062 seconds.
+􁁛  Test "PHash uses > median and returns non-padded hex" passed after 0.002 seconds.
+􁁛  Test "Rejects wrong coefficient count" passed after 0.002 seconds.
+􁁛  Suite "FFmpeg Path Resolver Tests" passed after 0.062 seconds.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􁁛  Suite SpriteAccumulatorTests passed after 0.062 seconds.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􁁛  Test testPreCancelledPublicCalls() passed after 0.062 seconds.
+􀟈  Test testCancelledExtractionDoesNotEnterFallback() started.
+􁁛  Test "Median matches goimagehash MedianOfPixels" passed after 0.003 seconds.
+􁁛  Suite "PHash HashComputer Tests" passed after 0.062 seconds.
+􁁛  Test testDurationAcrossEveryChunkBoundary() passed after 0.066 seconds.
+􁁛  Test testSuccessAndNonzeroExit() passed after 0.076 seconds.
+􀟈  Test testLaunchFailureCleansUp() started.
+􁁛  Test "Sprite hash matches goimagehash PerceptionHash" with 5 test cases passed after 0.075 seconds.
+􁁛  Suite "PHash Reference Parity Tests" passed after 0.076 seconds.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] Generating PHash for: /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/5F7F88C8-583F-4871-939C-3787C113E503
+􁁛  Test testNoisyProcessDoesNotBlockOnStderr() passed after 0.076 seconds.
+􁁛  Suite FFmpegDiagnosticsTests passed after 0.077 seconds.
+􁁛  Test testNonVideoFailsValidation() passed after 0.077 seconds.
+􁁛  Suite VideoHashValidationTests passed after 0.078 seconds.
+􁁛  Test testLaunchFailureCleansUp() passed after 0.003 seconds.
+􀟈  Test testPreCancelledRequestDoesNotLaunch() started.
+􁁛  Test testPreCancelledRequestDoesNotLaunch() passed after 0.001 seconds.
+􀟈  Test testCancellationWaitsForExitAndCleansUp(ignoreTermination:) started.
+􀟈  Test case passing 1 argument ignoreTermination → false to testCancellationWaitsForExitAndCleansUp(ignoreTermination:) started.
+􀟈  Test case passing 1 argument ignoreTermination → true to testCancellationWaitsForExitAndCleansUp(ignoreTermination:) started.
+2026-10-27T17:28:10+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:10+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+􁁛  Test testCancelledExtractionDoesNotEnterFallback() passed after 0.081 seconds.
+􀟈  Test testAVFoundationPreCancellation() started.
+􁁛  Test testAVFoundationPreCancellation() passed after 0.001 seconds.
+􁁛  Suite FrameExtractionCancellationTests passed after 0.145 seconds.
+2026-10-27T17:28:11+0100 warning com.videohash.phash: [VideoHash] Batch frame extraction failed, extracting frames one by one: Frame extraction failed: ffmpeg batch frame extraction exited with status 1: unknown ffmpeg error
+2026-10-27T17:28:11+0100 warning com.videohash.phash: [VideoHash] Fast seek failed at 3.0s, using accurate seek for remaining frames: Frame extraction failed: ffmpeg exited with status 1: unknown ffmpeg error
+2026-10-27T17:28:11+0100 warning com.videohash.phash: [VideoHash] Batch frame extraction failed, extracting frames one by one: Frame extraction failed: Invalid BMP header
+2026-10-27T17:28:11+0100 warning com.videohash.phash: [VideoHash] Fast seek failed at 3.0s, using accurate seek for remaining frames: Frame extraction failed: ffmpeg exited with status 1: unknown ffmpeg error
+􁁛  Test testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) with 2 test cases passed after 0.587 seconds.
+􁁛  Suite FrameExtractionFallbackTests passed after 0.587 seconds.
+􁁛  Test testCancellationWaitsForExitAndCleansUp(ignoreTermination:) with 2 test cases passed after 1.111 seconds.
+􀟈  Test testExitCancellationRaceAndIndependentSibling() started.
+􁁛  Test testExitCancellationRaceAndIndependentSibling() passed after 0.575 seconds.
+􀟈  Test testCancellingActiveRequestLeavesActiveSiblingRunning() started.
+􁁛  Test testCancellingActiveRequestLeavesActiveSiblingRunning() passed after 0.106 seconds.
+􁁛  Suite FFmpegProcessRunnerTests passed after 1.875 seconds.
+2026-10-27T17:28:16+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x340
+2026-10-27T17:28:16+0100 info com.videohash.phash: [VideoHash] Generated PHash: e6e2e0e6e2e2e04d
+2026-10-27T17:28:16+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=e6e2e0e6e2e2e04d, oshash=8f0b4a25ceaf96c8
+2026-10-27T17:28:16+0100 info com.videohash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:16+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:16+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:20+0100 info com.videohash.phash: [VideoHash] Generated PHash: e6e2e0e6e2e2e04d
+2026-10-27T17:28:20+0100 info com.videohash: [VideoHash] Generated PHash: e6e2e0e6e2e2e04d
+2026-10-27T17:28:20+0100 info com.videohash: [VideoHash] Generating OSHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:20+0100 info com.videohash: [VideoHash] Generated OSHash: 8f0b4a25ceaf96c8
+2026-10-27T17:28:20+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:28:20+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:28:20+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:28:22+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x450
+2026-10-27T17:28:22+0100 info com.videohash.phash: [VideoHash] Generated PHash: d5e26411f679a2e2
+2026-10-27T17:28:22+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=d5e26411f679a2e2, oshash=d718ecc60e04593a
+2026-10-27T17:28:22+0100 info com.videohash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:28:22+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:28:22+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:28:24+0100 info com.videohash.phash: [VideoHash] Generated PHash: d5e26411f679a2e2
+2026-10-27T17:28:24+0100 info com.videohash: [VideoHash] Generated PHash: d5e26411f679a2e2
+2026-10-27T17:28:24+0100 info com.videohash: [VideoHash] Generating OSHash for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:28:24+0100 info com.videohash: [VideoHash] Generated OSHash: d718ecc60e04593a
+2026-10-27T17:28:24+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:24+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:24+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:28+0100 info com.videohash.phash: [VideoHash] Generated PHash: a03f55c4469dba99
+2026-10-27T17:28:28+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=a03f55c4469dba99, oshash=1e5c53bdc1ceba12
+2026-10-27T17:28:28+0100 info com.videohash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:28+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x450
+2026-10-27T17:28:28+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:28+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:32+0100 info com.videohash.phash: [VideoHash] Generated PHash: a03f55c4469dba99
+2026-10-27T17:28:32+0100 info com.videohash: [VideoHash] Generated PHash: a03f55c4469dba99
+2026-10-27T17:28:32+0100 info com.videohash: [VideoHash] Generating OSHash for: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:32+0100 info com.videohash: [VideoHash] Generated OSHash: 1e5c53bdc1ceba12
+2026-10-27T17:28:32+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:32+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:32+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:37+0100 info com.videohash.phash: [VideoHash] Generated PHash: d2f868f8e87eb030
+2026-10-27T17:28:37+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=d2f868f8e87eb030, oshash=686064db3eafb762
+2026-10-27T17:28:37+0100 info com.videohash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:37+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x340
+2026-10-27T17:28:37+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:37+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:41+0100 info com.videohash.phash: [VideoHash] Generated PHash: d2f868f8e87eb030
+2026-10-27T17:28:41+0100 info com.videohash: [VideoHash] Generated PHash: d2f868f8e87eb030
+2026-10-27T17:28:41+0100 info com.videohash: [VideoHash] Generating OSHash for: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:41+0100 info com.videohash: [VideoHash] Generated OSHash: 686064db3eafb762
+2026-10-27T17:28:41+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:41+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:41+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:42+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x1420
+2026-10-27T17:28:42+0100 info com.videohash.phash: [VideoHash] Generated PHash: 8c98873d8e3e636a
+2026-10-27T17:28:42+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=8c98873d8e3e636a, oshash=bd3ed665e2f76e1f
+2026-10-27T17:28:42+0100 info com.videohash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:42+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:42+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:45+0100 info com.videohash.phash: [VideoHash] Generated PHash: 8c98873d8e3e636a
+2026-10-27T17:28:45+0100 info com.videohash: [VideoHash] Generated PHash: 8c98873d8e3e636a
+2026-10-27T17:28:45+0100 info com.videohash: [VideoHash] Generating OSHash for: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:45+0100 info com.videohash: [VideoHash] Generated OSHash: bd3ed665e2f76e1f
+2026-10-27T17:28:45+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:45+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:45+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:46+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x600
+2026-10-27T17:28:46+0100 info com.videohash.phash: [VideoHash] Generated PHash: b724a198db7ac4cc
+2026-10-27T17:28:46+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=b724a198db7ac4cc, oshash=9141445d9de673a2
+2026-10-27T17:28:46+0100 info com.videohash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:46+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:46+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:48+0100 info com.videohash.phash: [VideoHash] Generated PHash: b724a198db7ac4cc
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] Generated PHash: b724a198db7ac4cc
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] Generating OSHash for: /Users/francois/Dev/HashTestVids/V6.mp4
+􀟈  Test case passing 1 argument useFFmpeg → false to testStreamingMatchesFrameArray(useFFmpeg:) started.
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] Generated OSHash: 9141445d9de673a2
+􁁛  Test testAllEntryPointsMatchBaseline() passed after 37.359 seconds.
+􀟈  Test testConcurrentSingleCallsPreserveResults() started.
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:48+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:48+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:48+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:28:49+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x335
+2026-10-27T17:28:50+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x450
+2026-10-27T17:28:51+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x450
+2026-10-27T17:28:52+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x335
+2026-10-27T17:28:53+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x1420
+2026-10-27T17:28:53+0100 info com.videohash.phash: [VideoHash] Generated PHash: e6e2e0e6e2e2e04d
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=e6e2e0e6e2e2e04d, oshash=8f0b4a25ceaf96c8
+2026-10-27T17:28:53+0100 info com.videohash.phash: [VideoHash] Generated PHash: e6e2e0e6e2e2e04d
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=e6e2e0e6e2e2e04d, oshash=8f0b4a25ceaf96c8
+􁁛  Test testConcurrentSingleCallsPreserveResults() passed after 5.791 seconds.
+􀟈  Test testBatchPreservesInputOrder() started.
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] Generating hashes for 6 videos with concurrency limit 2
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:53+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V5.mp4
+2026-10-27T17:28:53+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:53+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V6.mp4
+2026-10-27T17:28:54+0100 info com.videohash.phash: [VideoHash] Created sprite: 800x600
+􁁛  Test testStreamingMatchesFrameArray(useFFmpeg:) with 2 test cases passed after 44.341 seconds.
+􀟈  Test testGroupedInputsPreserveEveryDecodedPixel() started.
+2026-10-27T17:28:56+0100 info com.videohash.phash: [VideoHash] Generated PHash: 8c98873d8e3e636a
+2026-10-27T17:28:56+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=8c98873d8e3e636a, oshash=bd3ed665e2f76e1f
+2026-10-27T17:28:56+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:56+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:56+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V4.mp4
+2026-10-27T17:28:56+0100 info com.videohash.phash: [VideoHash] Generated PHash: b724a198db7ac4cc
+2026-10-27T17:28:56+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=b724a198db7ac4cc, oshash=9141445d9de673a2
+2026-10-27T17:28:56+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:56+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:28:56+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V3.mp4
+2026-10-27T17:29:03+0100 info com.videohash.phash: [VideoHash] Generated PHash: a03f55c4469dba99
+2026-10-27T17:29:03+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=a03f55c4469dba99, oshash=1e5c53bdc1ceba12
+2026-10-27T17:29:03+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:29:03+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:29:03+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:29:05+0100 info com.videohash.phash: [VideoHash] Generated PHash: d2f868f8e87eb030
+2026-10-27T17:29:05+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=d2f868f8e87eb030, oshash=686064db3eafb762
+2026-10-27T17:29:05+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:29:05+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:29:05+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:29:06+0100 info com.videohash.phash: [VideoHash] Generated PHash: d5e26411f679a2e2
+2026-10-27T17:29:06+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=d5e26411f679a2e2, oshash=d718ecc60e04593a
+2026-10-27T17:29:09+0100 info com.videohash.phash: [VideoHash] Generated PHash: e6e2e0e6e2e2e04d
+2026-10-27T17:29:09+0100 info com.videohash: [VideoHash] Generated hashes successfully: phash=e6e2e0e6e2e2e04d, oshash=8f0b4a25ceaf96c8
+􁁛  Test testBatchPreservesInputOrder() passed after 15.114 seconds.
+􀟈  Test testAVFoundationBridgePreservesPixels() started.
+􁁛  Test testAVFoundationBridgePreservesPixels() passed after 4.877 seconds.
+􀟈  Test testAVFoundationCancellationAfterSubmission() started.
+􁁛  Test testAVFoundationCancellationAfterSubmission() passed after 0.040 seconds.
+􀟈  Test testCancelledBatchStopsActiveChildren() started.
+2026-10-27T17:29:14+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+2026-10-27T17:29:14+0100 info com.videohash: [VideoHash] Generating hashes for 2 videos with concurrency limit 2
+2026-10-27T17:29:14+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:29:14+0100 info com.videohash: [VideoHash] Generating hashes for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:29:14+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:29:14+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V2.mp4
+2026-10-27T17:29:14+0100 info com.videohash: [VideoHash] validated: /Users/francois/Dev/HashTestVids/V1.mp4
+2026-10-27T17:29:14+0100 info com.videohash.phash: [VideoHash] Generating PHash for: /Users/francois/Dev/HashTestVids/V1.mp4
+􁁛  Test testCancelledBatchStopsActiveChildren() passed after 0.171 seconds.
+􁁛  Suite VideoHashIntegrationTests passed after 63.356 seconds.
+􁁛  Test testGroupedInputsPreserveEveryDecodedPixel() passed after 63.132 seconds.
+􀟈  Test testGroupedInputsPreserveGeneratedEdgeFixtures() started.
+􁁛  Test testGroupedInputsPreserveGeneratedEdgeFixtures() passed after 7.709 seconds.
+􁁛  Suite FrameExtractionParityTests passed after 115.184 seconds.
+􁁛  Test run with 53 tests in 14 suites passed after 115.185 seconds.

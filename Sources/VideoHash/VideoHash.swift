@@ -25,14 +25,31 @@ import Logging
 @available(iOS 13.0.0, *)
 public actor VideoHashGenerator: Sendable {
     private let configuration: HashConfiguration
+    private let extractionPolicy: FFmpegExtractionPolicy
     private let logger = Logger.videoHash
 
     /// Initialize a video hash generator
     /// - Parameter configuration: Configuration for hash generation (defaults to .default)
     public init(configuration: HashConfiguration = .default) {
         self.configuration = configuration
+        self.extractionPolicy = .production
 
         logger.info("VideoHashGenerator initialized")
+    }
+
+    /// Effective default for package-local benchmark metadata.
+    package static var defaultFFmpegInputsPerProcess: Int? { FFmpegExtractionPolicy.production.maxInputsPerProcess }
+
+    /// Package-only entry point for resource-policy benchmarks; nil selects production policy.
+    package init(
+        configuration: HashConfiguration,
+        ffmpegMaxInputsPerProcess: Int?,
+        onFFmpegLaunchAttempt: (@Sendable () -> Void)? = nil
+    ) throws {
+        self.configuration = configuration
+        var policy = try ffmpegMaxInputsPerProcess.map { try FFmpegExtractionPolicy(maxInputsPerProcess: $0) } ?? .production
+        if let onFFmpegLaunchAttempt { policy.onLaunchAttempt = { _ in onFFmpegLaunchAttempt() } }
+        self.extractionPolicy = policy
     }
 
     /// Generate both PHash and OSHash for a video file
@@ -41,8 +58,9 @@ public actor VideoHashGenerator: Sendable {
     /// - Throws: HashError if video cannot be processed
     @available(iOS 15, *)
     public func generateHashes(for videoURL: URL) async throws -> HashResult {
+        try Task.checkCancellation()
         try configuration.validate()
-        return try await Self.generateHashesForSingleVideo(videoURL, configuration: configuration)
+        return try await Self.generateHashesForSingleVideo(videoURL, configuration: configuration, extractionPolicy: extractionPolicy)
     }
 
     /// Generate both PHash and OSHash for multiple video files concurrently.
@@ -61,6 +79,7 @@ public actor VideoHashGenerator: Sendable {
         for videoURLs: [URL],
         maxConcurrentTasks: Int
     ) async throws -> [HashResult] {
+        try Task.checkCancellation()
         try configuration.validate()
 
         guard maxConcurrentTasks > 0 else {
@@ -72,6 +91,7 @@ public actor VideoHashGenerator: Sendable {
         }
 
         let configuration = self.configuration
+        let extractionPolicy = self.extractionPolicy
         let plan = HashBatchPlanner.makePlan(for: videoURLs)
         let concurrencyLimit = min(maxConcurrentTasks, plan.count)
 
@@ -92,9 +112,11 @@ public actor VideoHashGenerator: Sendable {
                 nextItemIndex += 1
 
                 group.addTask {
+                    try Task.checkCancellation()
                     let result = try await Self.generateHashesForSingleVideo(
                         item.url,
-                        configuration: configuration
+                        configuration: configuration,
+                        extractionPolicy: extractionPolicy
                     )
                     return (item.originalIndex, result)
                 }
@@ -105,6 +127,7 @@ public actor VideoHashGenerator: Sendable {
             }
 
             while let (index, result) = try await group.next() {
+                try Task.checkCancellation()
                 results[index] = result
                 addNextTaskIfAvailable()
             }
@@ -123,8 +146,9 @@ public actor VideoHashGenerator: Sendable {
     /// - Returns: Lowercase hexadecimal string representing the PHash
     /// - Throws: HashError if video cannot be processed
     public func generatePHash(for videoURL: URL) async throws -> String {
+        try Task.checkCancellation()
         try configuration.validate()
-        return try await Self.generatePHashForSingleVideo(videoURL, configuration: configuration)
+        return try await Self.generatePHashForSingleVideo(videoURL, configuration: configuration, extractionPolicy: extractionPolicy)
     }
 
     /// Generate only OSHash for a video file
@@ -132,6 +156,7 @@ public actor VideoHashGenerator: Sendable {
     /// - Returns: 16-character hex string representing the OSHash
     /// - Throws: HashError if video cannot be processed
     public func generateOSHash(for videoURL: URL) async throws -> String {
+        try Task.checkCancellation()
         try configuration.validate()
         return try await Self.generateOSHashForSingleVideo(videoURL, configuration: configuration)
     }
@@ -141,7 +166,7 @@ public actor VideoHashGenerator: Sendable {
     /// Validate video file exists and is accessible
     /// - Parameter url: URL of the video file
     /// - Throws: HashError if file doesn't exist or is not a valid video
-    private static func validateVideoFile(_ url: URL) async throws {
+    private static func validatedAsset(for url: URL) async throws -> AVURLAsset {
         let path = url.path
         let fileManager = FileManager.default
         let logger = Logger.videoHash
@@ -174,20 +199,21 @@ public actor VideoHashGenerator: Sendable {
             throw HashError.invalidVideoFile(path: path, reason: "No video tracks found")
         }
         logger.info("validated: \(path)")
+        return asset
     }
 
     private static func generateHashesForSingleVideo(
         _ videoURL: URL,
-        configuration: HashConfiguration
+        configuration: HashConfiguration,
+        extractionPolicy: FFmpegExtractionPolicy
     ) async throws -> HashResult {
         let logger = Logger.videoHash
         logger.info("Generating hashes for: \(videoURL.path)")
 
-        try await validateVideoFile(videoURL)
-
-        let asset = AVURLAsset(url: videoURL)
+        let asset = try await validatedAsset(for: videoURL)
+        try Task.checkCancellation()
         let duration = try await asset.load(.duration).seconds
-        let phashGenerator = PHashGenerator(configuration: configuration)
+        let phashGenerator = PHashGenerator(configuration: configuration, extractionPolicy: extractionPolicy)
         let oshashGenerator = OSHashGenerator()
 
         async let phash = phashGenerator.generateHash(for: videoURL, asset: asset)
@@ -208,15 +234,15 @@ public actor VideoHashGenerator: Sendable {
 
     private static func generatePHashForSingleVideo(
         _ videoURL: URL,
-        configuration: HashConfiguration
+        configuration: HashConfiguration,
+        extractionPolicy: FFmpegExtractionPolicy
     ) async throws -> String {
         let logger = Logger.videoHash
         logger.info("Generating PHash for: \(videoURL.path)")
 
-        try await validateVideoFile(videoURL)
-
-        let asset = AVURLAsset(url: videoURL)
-        let phash = try await PHashGenerator(configuration: configuration)
+        let asset = try await validatedAsset(for: videoURL)
+        try Task.checkCancellation()
+        let phash = try await PHashGenerator(configuration: configuration, extractionPolicy: extractionPolicy)
             .generateHash(for: videoURL, asset: asset)
 
         logger.info("Generated PHash: \(phash)")

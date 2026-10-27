@@ -1,0 +1,3 @@
+  PID  PPID    RSS     ELAPSED COMM
+29462 28945  23648       00:05 /Users/francois/Dev/VideoHash/.build/out/Products/Release/hash-benchmark
+29512 29462 2525808       00:01 /opt/homebrew/bin/ffmpeg
