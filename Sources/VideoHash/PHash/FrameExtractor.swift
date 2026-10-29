@@ -190,6 +190,8 @@ actor FrameExtractor: Sendable {
             logger.warning("Batch frame extraction failed, extracting frames one by one: \(error.localizedDescription)")
         }
         signposter.emitEvent("Switching to slow mode", id: signpostID)
+        // Lets a batch start another file meanwhile (`SlowPathAwareScheduler`).
+        SlowExtraction.began()
         var collection = FrameCollection(configuration: configuration, composeSprite: composeSprite)
         var slowSeek = false
         let collectionState2 = signposter.beginInterval("frameCollectionSlow", id: signpostID,"URL: \(url.lastPathComponent)")

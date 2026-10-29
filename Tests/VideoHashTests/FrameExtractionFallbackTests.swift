@@ -56,12 +56,24 @@ struct FrameExtractionFallbackTests {
         let configuration = HashConfiguration(ffmpegPath: executable.path)
         let extractor = FrameExtractor(configuration: configuration, extractionPolicy: try FFmpegExtractionPolicy(maxInputsPerProcess: 5))
         let url = root.appendingPathComponent("unused.mp4")
-        let actual = try await extractor.extractSprite(from: AVURLAsset(url: url), url: url)
+        let slowSignals = SignalCounter()
+        let actual = try await SlowExtraction.$onSlowPath.withValue({ slowSignals.increment() }) {
+            try await extractor.extractSprite(from: AVURLAsset(url: url), url: url)
+        }
         #expect(actual.width == 5 && actual.height == 5)
+        // The batch scheduler hears once that this file went frame by frame.
+        #expect(slowSignals.count == 1)
         #expect(actual.pixels == [UInt8](repeating: 200, count: 75))
         let modes = try String(contentsOf: calls, encoding: .utf8).split(separator: "\n").map(String.init)
         #expect(modes == [String](repeating: "batch", count: malformedBMP ? 5 : 2) + ["fast"] + [String](repeating: "slow", count: 25))
         let lastOutput = try String(contentsOf: directory, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
         #expect(!FileManager.default.fileExists(atPath: URL(fileURLWithPath: lastOutput).deletingLastPathComponent().path))
     }
+}
+
+private final class SignalCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = 0
+    var count: Int { lock.withLock { value } }
+    func increment() { lock.withLock { value += 1 } }
 }

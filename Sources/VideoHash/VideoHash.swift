@@ -102,15 +102,12 @@ public actor VideoHashGenerator: Sendable {
 
         return try await withThrowingTaskGroup(of: (Int, HashResult).self) { group in
             var results = [HashResult?](repeating: nil, count: videoURLs.count)
-            var nextItemIndex = 0
+            var queue = VolumeBalancedQueue(plan: plan)
 
             func addNextTaskIfAvailable() {
-                guard nextItemIndex < plan.count else {
+                guard let item = queue.next() else {
                     return
                 }
-
-                let item = plan[nextItemIndex]
-                nextItemIndex += 1
 
                 group.addTask {
                     try Task.checkCancellation()
@@ -130,6 +127,7 @@ public actor VideoHashGenerator: Sendable {
             while let (index, result) = try await group.next() {
                 try Task.checkCancellation()
                 results[index] = result
+                queue.finished(originalIndex: index)
                 addNextTaskIfAvailable()
             }
 
@@ -175,43 +173,25 @@ public actor VideoHashGenerator: Sendable {
                         throw HashError.processingFailed(reason: "maxConcurrentTasks must be greater than zero")
                     }
 
-                    let plan = HashBatchPlanner.makePlan(for: videoURLs)
-                    try await withThrowingTaskGroup(of: (Int, Result<HashResult, any Error>).self) { group in
-                        var nextItemIndex = 0
-
-                        func addNextTaskIfAvailable() {
-                            guard nextItemIndex < plan.count else { return }
-                            let item = plan[nextItemIndex]
-                            nextItemIndex += 1
-                            group.addTask {
-                                try Task.checkCancellation()
-                                do {
-                                    let result = try await Self.generateHashesForSingleVideo(
-                                        item.url,
-                                        configuration: configuration,
-                                        extractionPolicy: extractionPolicy
-                                    )
-                                    try Task.checkCancellation()
-                                    return (item.originalIndex, .success(result))
-                                } catch {
-                                    try Task.checkCancellation()
-                                    return (item.originalIndex, .failure(error))
-                                }
-                            }
+                    // A file stuck in frame-by-frame extraction gets an
+                    // extra slot (at most doubling the limit), so it can't
+                    // slow the whole batch down.
+                    try await SlowPathAwareScheduler.run(
+                        plan: HashBatchPlanner.makePlan(for: videoURLs),
+                        maxConcurrentTasks: maxConcurrentTasks,
+                        maxExtraTasks: maxConcurrentTasks,
+                        work: { item in
+                            try await Self.generateHashesForSingleVideo(
+                                item.url,
+                                configuration: configuration,
+                                extractionPolicy: extractionPolicy
+                            )
+                        },
+                        deliver: { index, result in
+                            if case .terminated = continuation.yield((index, videoURLs[index], result)) { return false }
+                            return true
                         }
-
-                        for _ in 0..<min(maxConcurrentTasks, plan.count) {
-                            addNextTaskIfAvailable()
-                        }
-                        while let (index, result) = try await group.next() {
-                            try Task.checkCancellation()
-                            if case .terminated = continuation.yield((index, videoURLs[index], result)) {
-                                group.cancelAll()
-                                return
-                            }
-                            addNextTaskIfAvailable()
-                        }
-                    }
+                    )
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)

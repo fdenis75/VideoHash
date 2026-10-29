@@ -79,3 +79,58 @@ struct HashBatchPlanner {
         return "/"
     }
 }
+
+/// Hands out a plan's items one at a time, each from the volume with the
+/// fewest files in flight (ties broken round-robin, so the first picks follow
+/// the plan), keeping each volume's own order. A fixed interleaved order
+/// isn't enough: once a fast volume's files keep finishing first, the next
+/// items in line belong to the slow one, until every slot is on the slow
+/// volume and the fast one sits idle.
+struct VolumeBalancedQueue {
+    private var buckets: [[HashBatchPlanner.Item]] = []
+    private var positions: [Int] = []
+    private var inFlight: [Int] = []
+    private var bucketOfIndex: [Int: Int] = [:]
+    private var lastPicked = -1
+
+    init(plan: [HashBatchPlanner.Item]) {
+        var bucketOfKey: [String: Int] = [:]
+        for item in plan {
+            let bucket: Int
+            if let existing = bucketOfKey[item.volumeKey] {
+                bucket = existing
+            } else {
+                bucket = buckets.count
+                bucketOfKey[item.volumeKey] = bucket
+                buckets.append([])
+            }
+            buckets[bucket].append(item)
+            bucketOfIndex[item.originalIndex] = bucket
+        }
+        positions = Array(repeating: 0, count: buckets.count)
+        inFlight = Array(repeating: 0, count: buckets.count)
+    }
+
+    /// The next item to start, counted as in flight until `finished`; nil
+    /// once every item has been handed out.
+    mutating func next() -> HashBatchPlanner.Item? {
+        var best: Int?
+        for step in 1...max(1, buckets.count) {
+            let bucket = (lastPicked + step) % buckets.count
+            guard positions[bucket] < buckets[bucket].count else { continue }
+            if best == nil || inFlight[bucket] < inFlight[best!] { best = bucket }
+        }
+        guard let bucket = best else { return nil }
+        let item = buckets[bucket][positions[bucket]]
+        positions[bucket] += 1
+        inFlight[bucket] += 1
+        lastPicked = bucket
+        return item
+    }
+
+    /// Marks the item with `originalIndex` done, freeing its volume's slot.
+    mutating func finished(originalIndex: Int) {
+        guard let bucket = bucketOfIndex[originalIndex], inFlight[bucket] > 0 else { return }
+        inFlight[bucket] -= 1
+    }
+}
