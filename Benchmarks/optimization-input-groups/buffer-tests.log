@@ -1,0 +1,36 @@
+Building for production...
+[Using on-disk description]
+[1 / 8]
+[2 / 9] Logging
+[4 / 10] Logging
+[10 / 13] VideoHash
+[11 / 14] VideoHash
+[22 / 30] TestHash-product
+[26 / 34] TestHash-product
+[28 / 34] TestHash-product
+[28 / 34] test-hash-product
+[32 / 34] test-hash-product
+[33 / 34] hash-benchmark-product
+[33 / 34] test-hash-product
+[36 / 37] TestHash-product
+[40 / 42] hash-benchmark-product
+[41 / 42] VideoHashTests-product
+[45 / 49] VideoHashTests-product
+[47 / 49] VideoHashTests-product
+Build complete! (38,50 s)
+􀟈  Test run started.
+􀄵  Testing Library Version: 2084
+􀄵  Target Platform: arm64e-apple-macos14.0
+􀟈  Suite SpriteAccumulatorTests started.
+􀟈  Test testAVFoundationPaddingAndErrorPrecedence() started.
+􀟈  Test testBMPTopDownRowsAndTruncation() started.
+􀟈  Test testMissingFramesFailWithActualCount() started.
+􀟈  Test testMixedFramesMatchOriginalComposition() started.
+2026-10-27T17:18:19+0100 info com.videohash.phash: [VideoHash] Created sprite: 2x2
+2026-10-27T17:18:19+0100 info com.videohash.phash: [VideoHash] Created sprite: 6x4
+􁁛  Test testMixedFramesMatchOriginalComposition() passed after 0.001 seconds.
+􁁛  Test testMissingFramesFailWithActualCount() passed after 0.001 seconds.
+􁁛  Test testAVFoundationPaddingAndErrorPrecedence() passed after 0.001 seconds.
+􁁛  Test testBMPTopDownRowsAndTruncation() passed after 0.001 seconds.
+􁁛  Suite SpriteAccumulatorTests passed after 0.001 seconds.
+􁁛  Test run with 4 tests in 1 suite passed after 0.001 seconds.

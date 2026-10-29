@@ -41,9 +41,14 @@ let package = Package(
             dependencies: ["VideoHash"],
             path: "Sources/test-hash"
         ),
+        .executableTarget(
+            name: "hash-benchmark",
+            dependencies: ["VideoHash"]
+        ),
         .testTarget(
             name: "VideoHashTests",
-            dependencies: ["VideoHash"]
+            dependencies: ["VideoHash"],
+            resources: [.copy("Fixtures")]
         )
     ]
 )

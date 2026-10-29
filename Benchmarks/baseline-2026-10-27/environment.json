@@ -1,0 +1,42 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0\n",
+  "hardware": "hw.model: MacBookPro18,3\nhw.memsize: 17179869184\nhw.ncpu: 8\n",
+  "revision": "2220900f4919a2dd9cf4be64a5754472bb6d4de3",
+  "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+  "fixtures": [
+    {
+      "file": "V1.mp4",
+      "bytes": 1106685951,
+      "mtime_ns": 1789693670000000000
+    },
+    {
+      "file": "V2.mp4",
+      "bytes": 76466941,
+      "mtime_ns": 1789693343000000000
+    },
+    {
+      "file": "V3.mp4",
+      "bytes": 3100053970,
+      "mtime_ns": 1765893588000000000
+    },
+    {
+      "file": "V4.mp4",
+      "bytes": 852924553,
+      "mtime_ns": 1789693597000000000
+    },
+    {
+      "file": "V5.mp4",
+      "bytes": 943139819,
+      "mtime_ns": 1792505755000000000
+    },
+    {
+      "file": "V6.mp4",
+      "bytes": 367504428,
+      "mtime_ns": 1789693335000000000
+    }
+  ],
+  "sampling": "ps RSS KiB, nominal 100ms interval plus ps overhead; summed simultaneous descendants; shared pages may be double counted; brief peaks may be missed",
+  "cache": "No filesystem cache purge. First combined run retained separately; subsequent runs use uncontrolled/warmed OS caches.",
+  "fixture_directory": "/Users/francois/Dev/HashTestVids"
+}

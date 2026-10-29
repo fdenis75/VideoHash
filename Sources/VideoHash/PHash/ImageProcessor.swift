@@ -12,7 +12,7 @@ import Logging
 ///
 /// Ports goimagehash's PHash preprocessing: `resize.Resize(n, n, img, resize.Bilinear)`
 /// from github.com/nfnt/resize followed by `transforms.Rgb2Gray`.
-actor ImageProcessor: Sendable {
+struct ImageProcessor: Sendable {
     private let configuration: HashConfiguration
     private let logger = Logger.phash
 
@@ -24,7 +24,7 @@ actor ImageProcessor: Sendable {
     /// - Parameter sprite: Input sprite image
     /// - Returns: Grayscale luminance values in 0...255 (row-major order) sized for DCT
     /// - Throws: HashError if processing fails
-    func processImage(_ sprite: RGBImage) async throws -> [Double] {
+    func processImage(_ sprite: RGBImage) throws -> [Double] {
         let dctSize = configuration.dctSize
 
         logger.debug("Processing image to \(dctSize)x\(dctSize) grayscale")

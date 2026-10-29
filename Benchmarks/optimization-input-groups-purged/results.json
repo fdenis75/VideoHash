@@ -1,0 +1,1094 @@
+[
+  {
+    "concurrency": 1,
+    "ffmpegLaunchAttempts": 12,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 2.778801
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.04306675
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.6902375410000001
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 1.909620333
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.149639375
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.088141334
+      }
+    ],
+    "mode": "combined",
+    "seconds": 9.659778,
+    "purge_succeeded": true,
+    "purge_seconds": 0.26515849999850616,
+    "repeat": 1,
+    "peak_parent_rss_kib": 26080,
+    "peak_tree_rss_kib": 2282416,
+    "peak_child_count": 1,
+    "samples": 70,
+    "process_wall_seconds": 10.11051954200957,
+    "policy": null,
+    "round": 1
+  },
+  {
+    "concurrency": 2,
+    "ffmpegLaunchAttempts": 12,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 4.727357458
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.381815208
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 3.4125347919999998
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.467983209
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.1815934590000001
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.9871349999999999
+      }
+    ],
+    "mode": "client",
+    "seconds": 7.963413417,
+    "purge_succeeded": true,
+    "purge_seconds": 0.28091100000892766,
+    "repeat": 1,
+    "peak_parent_rss_kib": 28944,
+    "peak_tree_rss_kib": 3140288,
+    "peak_child_count": 2,
+    "samples": 53,
+    "process_wall_seconds": 8.389811458997428,
+    "policy": null,
+    "round": 1
+  },
+  {
+    "concurrency": 1,
+    "ffmpegInputsPerProcess": 5,
+    "ffmpegLaunchAttempts": 36,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 2.90719175
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.327136583
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.897889083
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.176221584
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.5634171669999999
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.224954541
+      }
+    ],
+    "mode": "combined",
+    "seconds": 11.096989375,
+    "purge_succeeded": true,
+    "purge_seconds": 0.29152525000972673,
+    "repeat": 1,
+    "peak_parent_rss_kib": 26352,
+    "peak_tree_rss_kib": 571616,
+    "peak_child_count": 1,
+    "samples": 86,
+    "process_wall_seconds": 11.392245249997359,
+    "policy": 5,
+    "round": 1
+  },
+  {
+    "concurrency": 2,
+    "ffmpegInputsPerProcess": 5,
+    "ffmpegLaunchAttempts": 36,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 4.031317875
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 2.542066584
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.536998208
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 3.359070875
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.925594084
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.875523625
+      }
+    ],
+    "mode": "client",
+    "seconds": 8.880587583,
+    "purge_succeeded": true,
+    "purge_seconds": 0.3026615419948939,
+    "repeat": 1,
+    "peak_parent_rss_kib": 32288,
+    "peak_tree_rss_kib": 944656,
+    "peak_child_count": 2,
+    "samples": 68,
+    "process_wall_seconds": 9.248528124997392,
+    "policy": 5,
+    "round": 1
+  },
+  {
+    "concurrency": 1,
+    "ffmpegInputsPerProcess": 10,
+    "ffmpegLaunchAttempts": 24,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 2.8630802920000002
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.071975667
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.895515875
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.454921458
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.4508462500000001
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.3338616669999999
+      }
+    ],
+    "mode": "combined",
+    "seconds": 11.070360958,
+    "purge_succeeded": true,
+    "purge_seconds": 0.3106921660073567,
+    "repeat": 1,
+    "peak_parent_rss_kib": 25056,
+    "peak_tree_rss_kib": 1088752,
+    "peak_child_count": 1,
+    "samples": 83,
+    "process_wall_seconds": 11.431879915995523,
+    "policy": 10,
+    "round": 1
+  },
+  {
+    "concurrency": 2,
+    "ffmpegInputsPerProcess": 10,
+    "ffmpegLaunchAttempts": 24,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 3.8301476660000002
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 2.675139292
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.296356292
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 3.3065785
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.954403541
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.329184833
+      }
+    ],
+    "mode": "client",
+    "seconds": 8.257674916,
+    "purge_succeeded": true,
+    "purge_seconds": 0.31038108401116915,
+    "repeat": 1,
+    "peak_parent_rss_kib": 31936,
+    "peak_tree_rss_kib": 1512960,
+    "peak_child_count": 2,
+    "samples": 62,
+    "process_wall_seconds": 8.6330942499917,
+    "policy": 10,
+    "round": 1
+  },
+  {
+    "concurrency": 1,
+    "ffmpegInputsPerProcess": 10,
+    "ffmpegLaunchAttempts": 24,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 2.8138335
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.062937333
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.969119875
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.060316458
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.234928792
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.112211916
+      }
+    ],
+    "mode": "combined",
+    "seconds": 10.253580375,
+    "purge_succeeded": true,
+    "purge_seconds": 0.3102372919966001,
+    "repeat": 1,
+    "peak_parent_rss_kib": 26368,
+    "peak_tree_rss_kib": 1085728,
+    "peak_child_count": 1,
+    "samples": 79,
+    "process_wall_seconds": 10.614033374993596,
+    "policy": 10,
+    "round": 2
+  },
+  {
+    "concurrency": 2,
+    "ffmpegInputsPerProcess": 10,
+    "ffmpegLaunchAttempts": 24,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 3.631541834
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 2.532117292
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.144351291
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 3.2766915
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 2.042072166
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.201728083
+      }
+    ],
+    "mode": "client",
+    "seconds": 7.920832333,
+    "purge_succeeded": true,
+    "purge_seconds": 0.2957662920234725,
+    "repeat": 1,
+    "peak_parent_rss_kib": 32304,
+    "peak_tree_rss_kib": 1464096,
+    "peak_child_count": 2,
+    "samples": 59,
+    "process_wall_seconds": 8.259901040990371,
+    "policy": 10,
+    "round": 2
+  },
+  {
+    "concurrency": 1,
+    "ffmpegInputsPerProcess": 5,
+    "ffmpegLaunchAttempts": 36,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 3.425081542
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.171679791
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.90627425
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.2096035
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.300649625
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.262547792
+      }
+    ],
+    "mode": "combined",
+    "seconds": 11.275996,
+    "purge_succeeded": true,
+    "purge_seconds": 0.2928959169948939,
+    "repeat": 1,
+    "peak_parent_rss_kib": 27424,
+    "peak_tree_rss_kib": 583120,
+    "peak_child_count": 1,
+    "samples": 89,
+    "process_wall_seconds": 11.596166041999822,
+    "policy": 5,
+    "round": 2
+  },
+  {
+    "concurrency": 2,
+    "ffmpegInputsPerProcess": 5,
+    "ffmpegLaunchAttempts": 36,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 5.073939542
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 2.783305083
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.795892459
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 3.0737484999999998
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.935258208
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.392499542
+      }
+    ],
+    "mode": "client",
+    "seconds": 8.907679167,
+    "purge_succeeded": true,
+    "purge_seconds": 9.403510917007225,
+    "repeat": 1,
+    "peak_parent_rss_kib": 30912,
+    "peak_tree_rss_kib": 926208,
+    "peak_child_count": 2,
+    "samples": 65,
+    "process_wall_seconds": 9.054551124980208,
+    "policy": 5,
+    "round": 2
+  },
+  {
+    "concurrency": 1,
+    "ffmpegLaunchAttempts": 12,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 2.76475025
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.083914416
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.7297467499999999
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 1.935721584
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.129965375
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.064469125
+      }
+    ],
+    "mode": "combined",
+    "seconds": 9.708778333,
+    "purge_succeeded": true,
+    "purge_seconds": 0.28653208300238475,
+    "repeat": 1,
+    "peak_parent_rss_kib": 25248,
+    "peak_tree_rss_kib": 2270256,
+    "peak_child_count": 1,
+    "samples": 70,
+    "process_wall_seconds": 10.041983458999312,
+    "policy": null,
+    "round": 2
+  },
+  {
+    "concurrency": 2,
+    "ffmpegLaunchAttempts": 12,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 3.609204959
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 2.958044541
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.229016667
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 4.840556584
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 2.677385416
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.481791125
+      }
+    ],
+    "mode": "client",
+    "seconds": 9.38709875,
+    "purge_succeeded": true,
+    "purge_seconds": 0.3132090830185916,
+    "repeat": 1,
+    "peak_parent_rss_kib": 25120,
+    "peak_tree_rss_kib": 2612816,
+    "peak_child_count": 2,
+    "samples": 61,
+    "process_wall_seconds": 9.779639542015502,
+    "policy": null,
+    "round": 2
+  },
+  {
+    "concurrency": 1,
+    "ffmpegLaunchAttempts": 12,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 3.185463625
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.207956916
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.740459083
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 3.345075041
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.81340575
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.448565417
+      }
+    ],
+    "mode": "combined",
+    "seconds": 13.74392275,
+    "purge_succeeded": true,
+    "purge_seconds": 0.40451458300231025,
+    "repeat": 1,
+    "peak_parent_rss_kib": 25616,
+    "peak_tree_rss_kib": 1834960,
+    "peak_child_count": 1,
+    "samples": 90,
+    "process_wall_seconds": 14.139890541002387,
+    "policy": null,
+    "round": 3
+  },
+  {
+    "concurrency": 2,
+    "ffmpegLaunchAttempts": 12,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 5.452624208
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.584268417
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 3.6819993330000003
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 3.035702875
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.82668775
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.8742754160000001
+      }
+    ],
+    "mode": "client",
+    "seconds": 9.185044208,
+    "purge_succeeded": true,
+    "purge_seconds": 0.36448616700363345,
+    "repeat": 1,
+    "peak_parent_rss_kib": 30288,
+    "peak_tree_rss_kib": 2870080,
+    "peak_child_count": 2,
+    "samples": 54,
+    "process_wall_seconds": 9.468970709014684,
+    "policy": null,
+    "round": 3
+  },
+  {
+    "concurrency": 1,
+    "ffmpegInputsPerProcess": 5,
+    "ffmpegLaunchAttempts": 36,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 3.028162291
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.131228416
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.033158792
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.398987542
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.5237645
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.836029292
+      }
+    ],
+    "mode": "combined",
+    "seconds": 11.951513334,
+    "purge_succeeded": true,
+    "purge_seconds": 0.30603458400582895,
+    "repeat": 1,
+    "peak_parent_rss_kib": 26528,
+    "peak_tree_rss_kib": 578144,
+    "peak_child_count": 1,
+    "samples": 92,
+    "process_wall_seconds": 12.275510750012472,
+    "policy": 5,
+    "round": 3
+  },
+  {
+    "concurrency": 2,
+    "ffmpegInputsPerProcess": 5,
+    "ffmpegLaunchAttempts": 36,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 4.909832958
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 2.982046709
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 3.861135917
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 3.638949792
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.699752667
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.253065625
+      }
+    ],
+    "mode": "client",
+    "seconds": 9.796348083,
+    "purge_succeeded": true,
+    "purge_seconds": 0.31861754099372774,
+    "repeat": 1,
+    "peak_parent_rss_kib": 30192,
+    "peak_tree_rss_kib": 950384,
+    "peak_child_count": 2,
+    "samples": 72,
+    "process_wall_seconds": 10.021646957990015,
+    "policy": 5,
+    "round": 3
+  },
+  {
+    "concurrency": 1,
+    "ffmpegInputsPerProcess": 10,
+    "ffmpegLaunchAttempts": 24,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 3.031856583
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 1.083214541
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 1.8049397919999999
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.071984084
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 1.2066885
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.125920041
+      }
+    ],
+    "mode": "combined",
+    "seconds": 10.324786,
+    "purge_succeeded": true,
+    "purge_seconds": 0.2900136249954812,
+    "repeat": 1,
+    "peak_parent_rss_kib": 26832,
+    "peak_tree_rss_kib": 1088320,
+    "peak_child_count": 1,
+    "samples": 80,
+    "process_wall_seconds": 10.649765624984866,
+    "policy": 10,
+    "round": 3
+  },
+  {
+    "concurrency": 2,
+    "ffmpegInputsPerProcess": 10,
+    "ffmpegLaunchAttempts": 24,
+    "measurements": [
+      {
+        "duration": 3310.674,
+        "file": "V1.mp4",
+        "oshash": "8f0b4a25ceaf96c8",
+        "phash": "e6e2e0e6e2e2e04d",
+        "seconds": 4.399710334
+      },
+      {
+        "duration": 525,
+        "file": "V2.mp4",
+        "oshash": "d718ecc60e04593a",
+        "phash": "d5e26411f679a2e2",
+        "seconds": 2.89672425
+      },
+      {
+        "duration": 2001.048,
+        "file": "V3.mp4",
+        "oshash": "1e5c53bdc1ceba12",
+        "phash": "a03f55c4469dba99",
+        "seconds": 2.083238584
+      },
+      {
+        "duration": 3421.618,
+        "file": "V4.mp4",
+        "oshash": "686064db3eafb762",
+        "phash": "d2f868f8e87eb030",
+        "seconds": 2.988683625
+      },
+      {
+        "duration": 2795.76,
+        "file": "V5.mp4",
+        "oshash": "bd3ed665e2f76e1f",
+        "phash": "8c98873d8e3e636a",
+        "seconds": 2.398670875
+      },
+      {
+        "duration": 3017.533,
+        "file": "V6.mp4",
+        "oshash": "9141445d9de673a2",
+        "phash": "b724a198db7ac4cc",
+        "seconds": 1.206329083
+      }
+    ],
+    "mode": "client",
+    "seconds": 8.58530625,
+    "purge_succeeded": true,
+    "purge_seconds": 0.2833044169819914,
+    "repeat": 1,
+    "peak_parent_rss_kib": 29488,
+    "peak_tree_rss_kib": 1445152,
+    "peak_child_count": 2,
+    "samples": 64,
+    "process_wall_seconds": 8.92506316700019,
+    "policy": 10,
+    "round": 3
+  }
+]

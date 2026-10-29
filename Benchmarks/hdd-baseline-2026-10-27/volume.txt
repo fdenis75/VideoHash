@@ -1,0 +1,46 @@
+   Device Identifier:         disk7s1
+   Device Node:               /dev/disk7s1
+   Whole:                     No
+   Part of Whole:             disk7
+
+   Volume Name:               Ext-6TB-2
+   Mounted:                   Yes
+   Mount Point:               /Volumes/Ext-6TB-2
+
+   Partition Type:            41504653-0000-11AA-AA11-00306543ECAC
+   File System Personality:   APFS
+   Type (Bundle):             apfs
+   Name (User Visible):       APFS
+   Owners:                    Disabled
+
+   OS Can Be Installed:       Yes
+   Media Type:                Générique
+   Protocol:                  USB
+   SMART Status:              Verified
+   Volume UUID:               91782ADF-7AD7-4E3F-B3F3-EB0CC4F07B2C
+   Disk / Partition UUID:     91782ADF-7AD7-4E3F-B3F3-EB0CC4F07B2C
+
+   Disk Size:                 6.0 TB (6000964341760 Bytes) (exactly 11720633480 512-Byte-Units)
+   Device Block Size:         4096 Bytes
+
+   Volume Used Space:         5.7 TB (5697350656000 Bytes) (exactly 11127638000 512-Byte-Units)
+   Container Total Space:     6.0 TB (6000964341760 Bytes) (exactly 11720633480 512-Byte-Units)
+   Container Free Space:      302.9 GB (302943113216 Bytes) (exactly 591685768 512-Byte-Units)
+   Allocation Block Size:     4096 Bytes
+
+   Media OS Use Only:         No
+   Media Read-Only:           No
+   Volume Read-Only:          No
+
+   Device Location:           External
+   Removable Media:           Fixed
+
+   Solid State:               No
+
+   This disk is an APFS Volume.  APFS Information:
+   APFS Container:            disk7
+   APFS Physical Store:       disk6s2
+   Encrypted:                 No
+   FileVault:                 No
+   Sealed:                    No
+   Locked:                    No

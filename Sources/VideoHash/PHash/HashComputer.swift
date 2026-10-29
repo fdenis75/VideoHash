@@ -9,7 +9,7 @@ import Foundation
 import Logging
 
 /// Computes perceptual hash from DCT coefficients
-actor HashComputer: Sendable {
+struct HashComputer: Sendable {
     private let configuration: HashConfiguration
     private let logger = Logger.phash
 
@@ -21,7 +21,7 @@ actor HashComputer: Sendable {
     /// - Parameter dctCoefficients: DCT coefficients (row-major order)
     /// - Returns: Lowercase hexadecimal string representing the hash
     /// - Throws: HashError if hash computation fails
-    func computeHash(from dctCoefficients: [Double]) async throws -> String {
+    func computeHash(from dctCoefficients: [Double]) throws -> String {
         let dctSize = configuration.dctSize
         let hashSize = configuration.hashSize
 

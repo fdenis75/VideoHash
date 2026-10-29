@@ -9,13 +9,17 @@ import Foundation
 import AVFoundation
 import CoreGraphics
 import Logging
+import os
 
 /// Extracts frames from video files for PHash generation.
 actor FrameExtractor: Sendable {
     private let configuration: HashConfiguration
+    private let extractionPolicy: FFmpegExtractionPolicy
     private let logger = Logger.phash
+    private let signposter = OSSignposter(subsystem: "com.videohash", category: "PHash")
 
-    init(configuration: HashConfiguration) {
+    init(configuration: HashConfiguration, extractionPolicy: FFmpegExtractionPolicy = .production) {
+        self.extractionPolicy = extractionPolicy
         self.configuration = configuration
     }
 
@@ -26,18 +30,39 @@ actor FrameExtractor: Sendable {
     /// - Returns: Frames scaled to the configured width
     /// - Throws: HashError if frame extraction fails
     func extractFrames(from asset: AVURLAsset, url: URL) async throws -> [RGBImage] {
+        let collection = try await extract(from: asset, url: url, composeSprite: false)
+        return collection.frames
+    }
+
+    func extractSprite(from asset: AVURLAsset, url: URL, signpost: OSSignpostID? = nil) async throws -> RGBImage {
+        let signpostID = signpost ?? signposter.makeSignpostID()
+        let collection = try await extract(from: asset, url: url, composeSprite: true, signpost: signpostID)
+        return try collection.finishSprite()
+    }
+
+    private func extract(from asset: AVURLAsset, url: URL, composeSprite: Bool, signpost: OSSignpostID? = nil) async throws -> FrameCollection {
+        let signpostID = signpost ?? signposter.makeSignpostID()
+        try Task.checkCancellation()
         logger.debug("Extracting \(configuration.frameCount) frames from: \(url.path)")
 
         if configuration.useFFmpegFrameExtraction {
+            let resolveState = signposter.beginInterval("ffmpegresolvePath", id: signpostID, "URL: \(url.lastPathComponent)")
+          
             let ffmpegPath = try resolveFFmpegPath()
+            signposter.endInterval("ffmpegresolvePath", resolveState)
+            let probingState = signposter.beginInterval("probeDuration", id: signpostID, "URL: \(url.lastPathComponent)")
             let durationSeconds = try await probeDuration(ffmpegPath: ffmpegPath, url: url, asset: asset)
             let sampleTimes = try makeSampleTimes(durationSeconds: durationSeconds)
+            signposter.endInterval("probeDuration", probingState)
             logger.debug("Extracting frames at times: \(sampleTimes)")
 
-            let frames = try extractFramesWithFFmpeg(ffmpegPath: ffmpegPath, url: url, sampleTimes: sampleTimes)
-            logger.info("Successfully extracted \(frames.count) frames with ffmpeg")
+            let frames = try await extractFramesWithFFmpeg(ffmpegPath: ffmpegPath, url: url, sampleTimes: sampleTimes, composeSprite: composeSprite, signpost: signpostID)
             return frames
         } else {
+            
+            signposter.emitEvent("SwitchingToAvFoundation", id: signpostID)
+            let state = signposter.beginInterval("runAvFoundationBatchExtraction", id: signpostID, "URL: \(url.lastPathComponent)")
+            defer { signposter.endInterval("runAvFoundationBatchExtraction", state) }
             let durationSeconds = try await asset.load(.duration).seconds
             guard durationSeconds > 0 else {
                 throw HashError.invalidVideoFile(path: url.path, reason: "Video has zero duration")
@@ -45,9 +70,7 @@ actor FrameExtractor: Sendable {
             let sampleTimes = try makeSampleTimes(durationSeconds: durationSeconds)
             logger.debug("Extracting frames at times: \(sampleTimes)")
 
-            let frames = try await extractFramesWithAVFoundation(asset: asset, sampleTimes: sampleTimes)
-            logger.info("Successfully extracted \(frames.count) frames with AVFoundation")
-            return try frames.map { try RGBImage(cgImage: $0) }
+            return try await extractFramesWithAVFoundation(asset: asset, sampleTimes: sampleTimes, composeSprite: composeSprite)
         }
     }
 
@@ -67,30 +90,6 @@ actor FrameExtractor: Sendable {
         }
     }
 
-    private func normalizeFrameCount(_ frames: [CGImage]) throws -> [CGImage] {
-        guard frames.count >= configuration.frameCount / 2 else {
-            logger.error("Insufficient frames extracted: \(frames.count)/\(configuration.frameCount)")
-            throw HashError.insufficientFrames(
-                expected: configuration.frameCount,
-                actual: frames.count
-            )
-        }
-
-        var normalizedFrames = frames
-        while normalizedFrames.count < configuration.frameCount {
-            guard let lastFrame = normalizedFrames.last else {
-                throw HashError.insufficientFrames(
-                    expected: configuration.frameCount,
-                    actual: normalizedFrames.count
-                )
-            }
-            normalizedFrames.append(lastFrame)
-            logger.debug("Duplicating frame to reach target count")
-        }
-
-        return normalizedFrames
-    }
-
     // MARK: - Duration
 
     /// Duration as videohashes sees it: the container duration reported by ffmpeg,
@@ -99,18 +98,15 @@ actor FrameExtractor: Sendable {
     /// AVFoundation's duration can differ noticeably (e.g. 21.38s vs 21.43s), which
     /// shifts every sample timestamp, so it is only used when ffmpeg reports none.
     private func probeDuration(ffmpegPath: String, url: URL, asset: AVURLAsset) async throws -> Double {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: ffmpegPath)
-        process.arguments = ["-hide_banner", "-i", url.path]
-
         // ffmpeg exits non-zero here because no output is given; only stderr matters.
-        let (_, stderrOutput) = try runFFmpegProcess(
-            process,
+        let result = try await runFFmpegProcess(
+            ffmpegPath: ffmpegPath,
+            arguments: ["-hide_banner", "-i", url.path],
             launchFailureReason: "Failed to launch ffmpeg duration probe",
             failureReason: HashError.frameExtractionFailed
         )
 
-        if let duration = Self.parseDuration(fromFFmpegOutput: stderrOutput), duration > 0 {
+        if let duration = result.reportedDuration, duration > 0 {
             return duration
         }
 
@@ -141,12 +137,14 @@ actor FrameExtractor: Sendable {
 
     /// Extract one frame per sample time exactly like stash's `generateSpriteScreenshot`.
     ///
-    /// All frames are first extracted by a single ffmpeg process (one seeked input and
-    /// one BMP output per sample time). Each output is produced with the same options
-    /// as the reference's per-frame command, so the pixels are identical. If that fails,
-    /// frames are extracted one process at a time with stash's fallback: fast seek
-    /// first, then accurate seek for the remaining frames once a fast seek fails.
-    private func extractFramesWithFFmpeg(ffmpegPath: String, url: URL, sampleTimes: [Double]) throws -> [RGBImage] {
+    /// Frames are first extracted in sequential groups of at most ten ffmpeg inputs
+    /// by default (one seeked input and one BMP output per sample time). Each output
+    /// uses the reference's per-frame options; the original unbounded group is kept
+    /// for comparisons. Unsupported scaler conversions abort the current request.
+    /// For other group or BMP decoding failures, frames are extracted one process
+    /// at a time with stash's fallback: fast seek first, then accurate seek for the
+    /// remaining frames once a fast seek fails.
+    private func extractFramesWithFFmpeg(ffmpegPath: String, url: URL, sampleTimes: [Double], composeSprite: Bool, signpost: OSSignpostID? = nil) async throws -> FrameCollection {
         let fileManager = FileManager.default
         let tempDirectory = fileManager.temporaryDirectory.appendingPathComponent(
             "videohash-frames-\(UUID().uuidString)",
@@ -160,38 +158,72 @@ actor FrameExtractor: Sendable {
         let outputURLs = sampleTimes.indices.map {
             tempDirectory.appendingPathComponent("frame-\($0).bmp")
         }
-
+        let signpostID = signpost ?? signposter.makeSignpostID()
         do {
-            try runFFmpegBatchExtraction(
-                ffmpegPath: ffmpegPath,
-                videoPath: url.path,
-                sampleTimes: sampleTimes,
-                outputPaths: outputURLs.map(\.path)
-            )
-            return try outputURLs.map { try BMPDecoder.decode(Data(contentsOf: $0)) }
+            for group in extractionPolicy.groups(count: sampleTimes.count) {
+                try Task.checkCancellation()
+                //let signpostID = signposter.makeSignpostID()
+                signposter.emitEvent("runFFmpegBatchExtractionStarted", id: signpostID)
+                let state = signposter.beginInterval("runFFmpegBatchExtraction", id: signpostID, "URL: \(url.lastPathComponent) Frames: \(group.count)")
+                defer { signposter.endInterval("runFFmpegBatchExtraction", state) }
+                try await runFFmpegBatchExtraction(
+                    ffmpegPath: ffmpegPath,
+                    videoPath: url.path,
+                    sampleTimes: Array(sampleTimes[group]),
+                    outputPaths: outputURLs[group].map(\.path)
+                )
+            }
+           // let collectionID = signposter.makeSignpostID()
+            signposter.emitEvent("frameCollectionStarted", id: signpostID)
+            let collectionState = signposter.beginInterval("frameCollection", id: signpostID,"URL: \(url.lastPathComponent)")
+            defer { signposter.endInterval("frameCollection", collectionState) }
+            var collection = FrameCollection(configuration: configuration, composeSprite: composeSprite)
+            for output in outputURLs {
+                try Task.checkCancellation()
+                collection.append(try BMPDecoder.decode(Data(contentsOf: output)))
+            }
+            return collection
         } catch {
+            try Task.checkCancellation()
+            if error is CancellationError { throw error }
+            if Self.isUnsupportedConversion(error) { throw error }
             logger.warning("Batch frame extraction failed, extracting frames one by one: \(error.localizedDescription)")
         }
-
-        var frames: [RGBImage] = []
-        frames.reserveCapacity(sampleTimes.count)
+        signposter.emitEvent("Switching to slow mode", id: signpostID)
+        // Lets a batch start another file meanwhile (`SlowPathAwareScheduler`).
+        SlowExtraction.began()
+        var collection = FrameCollection(configuration: configuration, composeSprite: composeSprite)
         var slowSeek = false
-
+        let collectionState2 = signposter.beginInterval("frameCollectionSlow", id: signpostID,"URL: \(url.lastPathComponent)")
+        defer { signposter.endInterval("frameCollectionSlow", collectionState2) }
         for (time, outputURL) in zip(sampleTimes, outputURLs) {
+            try Task.checkCancellation()
             do {
-                frames.append(try extractSingleFrame(
+                collection.append(try await extractSingleFrame(
                     ffmpegPath: ffmpegPath, videoPath: url.path, timestamp: time, outputURL: outputURL, slowSeek: slowSeek
                 ))
             } catch where !slowSeek {
+                try Task.checkCancellation()
+                if error is CancellationError { throw error }
+                if Self.isUnsupportedConversion(error) { throw error }
                 logger.warning("Fast seek failed at \(time)s, using accurate seek for remaining frames: \(error.localizedDescription)")
                 slowSeek = true
-                frames.append(try extractSingleFrame(
+                collection.append(try await extractSingleFrame(
                     ffmpegPath: ffmpegPath, videoPath: url.path, timestamp: time, outputURL: outputURL, slowSeek: slowSeek
                 ))
             }
         }
 
-        return frames
+        return collection
+    }
+
+    /// Seeking again cannot repair a conversion that libswscale does not support.
+    private static func isUnsupportedConversion(_ error: any Error) -> Bool {
+        guard let hashError = error as? HashError,
+              case .frameExtractionFailed(let reason) = hashError else { return false }
+        return reason.split(separator: "\n").contains { line in
+            line.contains("[swscaler") && line.contains("Unsupported input (Operation not supported)")
+        }
     }
 
     /// Seek time formatted like Go's `fmt.Sprint(float64)` (shortest round-trip representation).
@@ -215,8 +247,8 @@ actor FrameExtractor: Sendable {
         videoPath: String,
         sampleTimes: [Double],
         outputPaths: [String]
-    ) throws {
-        var arguments = ["-v", "error", "-y"]
+    ) async throws {
+        var arguments = ["-v", "error", "-y", "-hwaccel", "videotoolbox"]
         for time in sampleTimes {
             arguments += ["-ss", formatSeekTime(time), "-i", videoPath]
         }
@@ -225,12 +257,9 @@ actor FrameExtractor: Sendable {
             arguments += ["-map", "\(index):V:0"] + frameOutputArguments(outputPath: outputPath)
         }
 
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: ffmpegPath)
-        process.arguments = arguments
-
-        try runCheckedFFmpegProcess(
-            process,
+        try await runCheckedFFmpegProcess(
+            ffmpegPath: ffmpegPath,
+            arguments: arguments,
             launchFailureReason: "Failed to launch ffmpeg",
             exitFailureReason: "ffmpeg batch frame extraction",
             failureReason: HashError.frameExtractionFailed
@@ -243,19 +272,16 @@ actor FrameExtractor: Sendable {
         timestamp: Double,
         outputURL: URL,
         slowSeek: Bool
-    ) throws -> RGBImage {
+    ) async throws -> RGBImage {
         let seek = ["-ss", formatSeekTime(timestamp)]
         var arguments = ["-v", "error", "-y"]
         arguments += slowSeek ? ["-i", videoPath] + seek : seek + ["-i", videoPath]
         arguments += frameOutputArguments(outputPath: outputURL.path)
 
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: ffmpegPath)
-        process.arguments = arguments
-
         try? FileManager.default.removeItem(at: outputURL)
-        try runCheckedFFmpegProcess(
-            process,
+        try await runCheckedFFmpegProcess(
+            ffmpegPath: ffmpegPath,
+            arguments: arguments,
             launchFailureReason: "Failed to launch ffmpeg",
             exitFailureReason: "ffmpeg",
             failureReason: HashError.frameExtractionFailed
@@ -264,64 +290,40 @@ actor FrameExtractor: Sendable {
     }
 
     private func runCheckedFFmpegProcess(
-        _ process: Process,
+        ffmpegPath: String,
+        arguments: [String],
         launchFailureReason: String,
         exitFailureReason: String,
         failureReason: (String) -> HashError
-    ) throws {
-        let (status, stderrOutput) = try runFFmpegProcess(
-            process,
+    ) async throws {
+        let result = try await runFFmpegProcess(
+            ffmpegPath: ffmpegPath,
+            arguments: arguments,
             launchFailureReason: launchFailureReason,
             failureReason: failureReason
         )
-        guard status == 0 else {
-            let message = stderrOutput.isEmpty ? "unknown ffmpeg error" : stderrOutput
-            throw failureReason("\(exitFailureReason) exited with status \(status): \(message)")
+        guard result.status == 0 else {
+            let message = result.stderr.isEmpty ? "unknown ffmpeg error" : result.stderr
+            throw failureReason("\(exitFailureReason) exited with status \(result.status): \(message)")
         }
     }
 
-    /// Runs an ffmpeg process, draining stderr to a temp file as it writes rather than
-    /// buffering it in a `Pipe` and reading it back after `waitUntilExit()`. A `Pipe`'s
-    /// kernel buffer is only ~64KB; a corrupt input can make ffmpeg log far more than that
-    /// (thousands of "Invalid NAL unit size" lines even at `-v error`), so reading the pipe
-    /// only after exit deadlocks: ffmpeg blocks on write() while nothing drains the pipe, and
-    /// waitUntilExit() never returns.
-    /// - Returns: The exit status and the trimmed stderr output
     private func runFFmpegProcess(
-        _ process: Process,
+        ffmpegPath: String,
+        arguments: [String],
         launchFailureReason: String,
         failureReason: (String) -> HashError
-    ) throws -> (status: Int32, stderr: String) {
-        let fileManager = FileManager.default
-        let stderrURL = fileManager.temporaryDirectory.appendingPathComponent(
-            "videohash-ffmpeg-stderr-\(UUID().uuidString).log"
-        )
-        fileManager.createFile(atPath: stderrURL.path, contents: nil)
-        defer {
-            try? fileManager.removeItem(at: stderrURL)
-        }
-
-        guard let stderrHandle = FileHandle(forWritingAtPath: stderrURL.path) else {
-            throw failureReason("Failed to create stderr log file for ffmpeg")
-        }
-
-        process.standardError = stderrHandle
-        process.standardOutput = FileHandle.nullDevice
-        process.standardInput = FileHandle.nullDevice
-
+    ) async throws -> FFmpegProcessResult {
         do {
-            try process.run()
-            process.waitUntilExit()
+            extractionPolicy.onLaunchAttempt?(arguments)
+            return try await FFmpegProcessRunner().run(
+                executableURL: URL(fileURLWithPath: ffmpegPath), arguments: arguments
+            )
         } catch {
-            try? stderrHandle.close()
+            try Task.checkCancellation()
+            if error is CancellationError { throw error }
             throw failureReason("\(launchFailureReason): \(error.localizedDescription)")
         }
-        try? stderrHandle.close()
-
-        let stderrData = (try? Data(contentsOf: stderrURL)) ?? Data()
-        let stderrOutput = String(data: stderrData, encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return (process.terminationStatus, stderrOutput)
     }
 
     private func resolveFFmpegPath() throws -> String {
@@ -330,29 +332,32 @@ actor FrameExtractor: Sendable {
 
     // MARK: - AVFoundation fallback
 
-    private func extractFramesWithAVFoundation(asset: AVURLAsset, sampleTimes: [Double]) async throws -> [CGImage] {
+    private func extractFramesWithAVFoundation(asset: AVURLAsset, sampleTimes: [Double], composeSprite: Bool) async throws -> FrameCollection {
         let timePoints = sampleTimes.map { CMTime(seconds: $0, preferredTimescale: 600) }
-        let imageGenerator = AVAssetImageGenerator(asset: asset)
-        imageGenerator.appliesPreferredTrackTransform = true
-        imageGenerator.requestedTimeToleranceBefore = .positiveInfinity
-        imageGenerator.requestedTimeToleranceAfter = .positiveInfinity
-
-        // Preserve aspect ratio by constraining width and allowing a large maximum height.
-        imageGenerator.maximumSize = CGSize(width: configuration.frameWidth, height: 10_000)
-
-        var frames: [CGImage] = []
-        frames.reserveCapacity(configuration.frameCount)
+        let imageGenerator = AVFrameGenerator(asset: asset, frameWidth: configuration.frameWidth)
+        var collection = FrameCollection(configuration: configuration, composeSprite: composeSprite)
+        var successfulCount = 0
+        var conversionError: (any Error)?
 
         for time in timePoints {
+            try Task.checkCancellation()
             do {
-                let (image, _) = try await imageGenerator.image(at: time)
-                frames.append(image)
+                let image = try await imageGenerator.image(at: time)
+                try Task.checkCancellation()
+                successfulCount += 1
+                if conversionError == nil {
+                    do { collection.append(try RGBImage(cgImage: image)) }
+                    catch { conversionError = error }
+                }
                 logger.trace("Extracted frame at \(time.seconds)s")
             } catch {
+                try Task.checkCancellation()
+                if error is CancellationError { throw error }
                 logger.warning("Failed to extract frame at \(time.seconds)s: \(error.localizedDescription)")
             }
         }
 
-        return try normalizeFrameCount(frames)
+        try collection.normalizeAVFoundation(successfulCount: successfulCount, conversionError: conversionError)
+        return collection
     }
 }

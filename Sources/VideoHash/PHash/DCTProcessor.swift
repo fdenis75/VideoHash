@@ -12,7 +12,7 @@ import Logging
 ///
 /// Ports goimagehash's `transforms.DCT2D`: an unscaled DCT-II computed with
 /// Byeong Gi Lee's fast algorithm, applied to rows then columns.
-actor DCTProcessor: Sendable {
+struct DCTProcessor: Sendable {
     private let configuration: HashConfiguration
     private let logger = Logger.phash
 
@@ -24,7 +24,7 @@ actor DCTProcessor: Sendable {
     /// - Parameter pixels: 1D array of grayscale pixels (row-major order)
     /// - Returns: DCT coefficients (row-major order)
     /// - Throws: HashError if DCT computation fails
-    func applyDCT(to pixels: [Double]) async throws -> [Double] {
+    func applyDCT(to pixels: [Double]) throws -> [Double] {
         let size = configuration.dctSize
 
         logger.debug("Applying 2D DCT to \(size)x\(size) data")

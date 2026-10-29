@@ -24,6 +24,7 @@ public actor OSHashGenerator: Sendable {
     /// - Returns: 16-character hex string representing the OSHash
     /// - Throws: HashError if file cannot be read or is too small
     public func generateHash(for url: URL) async throws -> String {
+        try Task.checkCancellation()
         let path = url.path
 
         // Verify file exists
@@ -91,6 +92,7 @@ public actor OSHashGenerator: Sendable {
 
         logger.debug("Generated OSHash: \(hexString)")
 
+        try Task.checkCancellation()
         return hexString
     }
 
