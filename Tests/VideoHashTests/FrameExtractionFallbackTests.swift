@@ -60,9 +60,7 @@ struct FrameExtractionFallbackTests {
         #expect(actual.width == 5 && actual.height == 5)
         #expect(actual.pixels == [UInt8](repeating: 200, count: 75))
         let modes = try String(contentsOf: calls, encoding: .utf8).split(separator: "\n").map(String.init)
-        let batchCount = modes.prefix { $0 == "batch" }.count
-        #expect(malformedBMP ? batchCount == 5 : (1...5).contains(batchCount))
-        #expect(Array(modes.dropFirst(batchCount)) == ["fast"] + [String](repeating: "slow", count: 25))
+        #expect(modes == [String](repeating: "batch", count: malformedBMP ? 5 : 2) + ["fast"] + [String](repeating: "slow", count: 25))
         let lastOutput = try String(contentsOf: directory, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
         #expect(!FileManager.default.fileExists(atPath: URL(fileURLWithPath: lastOutput).deletingLastPathComponent().path))
     }

@@ -34,24 +34,35 @@ actor FrameExtractor: Sendable {
         return collection.frames
     }
 
-    func extractSprite(from asset: AVURLAsset, url: URL) async throws -> RGBImage {
-        let collection = try await extract(from: asset, url: url, composeSprite: true)
+    func extractSprite(from asset: AVURLAsset, url: URL, signpost: OSSignpostID? = nil) async throws -> RGBImage {
+        let signpostID = signpost ?? signposter.makeSignpostID()
+        let collection = try await extract(from: asset, url: url, composeSprite: true, signpost: signpostID)
         return try collection.finishSprite()
     }
 
-    private func extract(from asset: AVURLAsset, url: URL, composeSprite: Bool) async throws -> FrameCollection {
+    private func extract(from asset: AVURLAsset, url: URL, composeSprite: Bool, signpost: OSSignpostID? = nil) async throws -> FrameCollection {
+        let signpostID = signpost ?? signposter.makeSignpostID()
         try Task.checkCancellation()
         logger.debug("Extracting \(configuration.frameCount) frames from: \(url.path)")
 
         if configuration.useFFmpegFrameExtraction {
+            let resolveState = signposter.beginInterval("ffmpegresolvePath", id: signpostID, "URL: \(url.lastPathComponent)")
+          
             let ffmpegPath = try resolveFFmpegPath()
+            signposter.endInterval("ffmpegresolvePath", resolveState)
+            let probingState = signposter.beginInterval("probeDuration", id: signpostID, "URL: \(url.lastPathComponent)")
             let durationSeconds = try await probeDuration(ffmpegPath: ffmpegPath, url: url, asset: asset)
             let sampleTimes = try makeSampleTimes(durationSeconds: durationSeconds)
+            signposter.endInterval("probeDuration", probingState)
             logger.debug("Extracting frames at times: \(sampleTimes)")
 
-            let frames = try await extractFramesWithFFmpeg(ffmpegPath: ffmpegPath, url: url, sampleTimes: sampleTimes, composeSprite: composeSprite)
+            let frames = try await extractFramesWithFFmpeg(ffmpegPath: ffmpegPath, url: url, sampleTimes: sampleTimes, composeSprite: composeSprite, signpost: signpostID)
             return frames
         } else {
+            
+            signposter.emitEvent("SwitchingToAvFoundation", id: signpostID)
+            let state = signposter.beginInterval("runAvFoundationBatchExtraction", id: signpostID, "URL: \(url.lastPathComponent)")
+            defer { signposter.endInterval("runAvFoundationBatchExtraction", state) }
             let durationSeconds = try await asset.load(.duration).seconds
             guard durationSeconds > 0 else {
                 throw HashError.invalidVideoFile(path: url.path, reason: "Video has zero duration")
@@ -126,14 +137,14 @@ actor FrameExtractor: Sendable {
 
     /// Extract one frame per sample time exactly like stash's `generateSpriteScreenshot`.
     ///
-    /// Frames are first extracted in concurrent groups of at most ten ffmpeg inputs
+    /// Frames are first extracted in sequential groups of at most ten ffmpeg inputs
     /// by default (one seeked input and one BMP output per sample time). Each output
     /// uses the reference's per-frame options; the original unbounded group is kept
     /// for comparisons. Unsupported scaler conversions abort the current request.
     /// For other group or BMP decoding failures, frames are extracted one process
     /// at a time with stash's fallback: fast seek first, then accurate seek for the
     /// remaining frames once a fast seek fails.
-    private func extractFramesWithFFmpeg(ffmpegPath: String, url: URL, sampleTimes: [Double], composeSprite: Bool) async throws -> FrameCollection {
+    private func extractFramesWithFFmpeg(ffmpegPath: String, url: URL, sampleTimes: [Double], composeSprite: Bool, signpost: OSSignpostID? = nil) async throws -> FrameCollection {
         let fileManager = FileManager.default
         let tempDirectory = fileManager.temporaryDirectory.appendingPathComponent(
             "videohash-frames-\(UUID().uuidString)",
@@ -147,30 +158,24 @@ actor FrameExtractor: Sendable {
         let outputURLs = sampleTimes.indices.map {
             tempDirectory.appendingPathComponent("frame-\($0).bmp")
         }
-
+        let signpostID = signpost ?? signposter.makeSignpostID()
         do {
-            try await withThrowingTaskGroup(of: Void.self) { tasks in
-                for group in extractionPolicy.groups(count: sampleTimes.count) {
-                    tasks.addTask { [self] in
-                        try Task.checkCancellation()
-                        let signpostID = signposter.makeSignpostID()
-                        signposter.emitEvent("runFFmpegBatchExtractionStarted", id: signpostID)
-                        let state = signposter.beginInterval("runFFmpegBatchExtraction", id: signpostID, "Frames: \(group.count)")
-                        defer { signposter.endInterval("runFFmpegBatchExtraction", state) }
-                        try await runFFmpegBatchExtraction(
-                            ffmpegPath: ffmpegPath,
-                            videoPath: url.path,
-                            sampleTimes: Array(sampleTimes[group]),
-                            outputPaths: outputURLs[group].map(\.path)
-                        )
-                    }
-                }
-                // Propagate the first failure and cancel/join siblings before fallback.
-                for try await _ in tasks {}
+            for group in extractionPolicy.groups(count: sampleTimes.count) {
+                try Task.checkCancellation()
+                //let signpostID = signposter.makeSignpostID()
+                signposter.emitEvent("runFFmpegBatchExtractionStarted", id: signpostID)
+                let state = signposter.beginInterval("runFFmpegBatchExtraction", id: signpostID, "URL: \(url.lastPathComponent) Frames: \(group.count)")
+                defer { signposter.endInterval("runFFmpegBatchExtraction", state) }
+                try await runFFmpegBatchExtraction(
+                    ffmpegPath: ffmpegPath,
+                    videoPath: url.path,
+                    sampleTimes: Array(sampleTimes[group]),
+                    outputPaths: outputURLs[group].map(\.path)
+                )
             }
-            let collectionID = signposter.makeSignpostID()
-            signposter.emitEvent("frameCollectionStarted", id: collectionID)
-            let collectionState = signposter.beginInterval("frameCollection", id: collectionID)
+           // let collectionID = signposter.makeSignpostID()
+            signposter.emitEvent("frameCollectionStarted", id: signpostID)
+            let collectionState = signposter.beginInterval("frameCollection", id: signpostID,"URL: \(url.lastPathComponent)")
             defer { signposter.endInterval("frameCollection", collectionState) }
             var collection = FrameCollection(configuration: configuration, composeSprite: composeSprite)
             for output in outputURLs {
@@ -184,10 +189,11 @@ actor FrameExtractor: Sendable {
             if Self.isUnsupportedConversion(error) { throw error }
             logger.warning("Batch frame extraction failed, extracting frames one by one: \(error.localizedDescription)")
         }
-
+        signposter.emitEvent("Switching to slow mode", id: signpostID)
         var collection = FrameCollection(configuration: configuration, composeSprite: composeSprite)
         var slowSeek = false
-
+        let collectionState2 = signposter.beginInterval("frameCollectionSlow", id: signpostID,"URL: \(url.lastPathComponent)")
+        defer { signposter.endInterval("frameCollectionSlow", collectionState2) }
         for (time, outputURL) in zip(sampleTimes, outputURLs) {
             try Task.checkCancellation()
             do {
@@ -240,7 +246,7 @@ actor FrameExtractor: Sendable {
         sampleTimes: [Double],
         outputPaths: [String]
     ) async throws {
-        var arguments = ["-v", "error", "-y"]
+        var arguments = ["-v", "error", "-y", "-hwaccel", "videotoolbox"]
         for time in sampleTimes {
             arguments += ["-ss", formatSeekTime(time), "-i", videoPath]
         }

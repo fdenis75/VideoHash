@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import Logging
+import os
 
 /// Main entry point for video hash generation
 ///
@@ -249,6 +250,7 @@ public actor VideoHashGenerator: Sendable {
         let path = url.path
         let fileManager = FileManager.default
         let logger = Logger.videoHash
+        
 
         guard fileManager.fileExists(atPath: path) else {
             logger.error("Video file not found: \(path)")
@@ -287,27 +289,83 @@ public actor VideoHashGenerator: Sendable {
         extractionPolicy: FFmpegExtractionPolicy
     ) async throws -> HashResult {
         let logger = Logger.videoHash
+        let signposter = OSSignposter(subsystem: "com.videohash", category: "HashGeneration")
+        // Each video gets its own ID because batch operations can overlap.
+        let signpostID = signposter.makeSignpostID()
+        let generationState = signposter.beginInterval("HashGeneration", id: signpostID, "URL: \(videoURL.lastPathComponent)")
+        defer { signposter.endInterval("HashGeneration", generationState) }
+        signposter.emitEvent("HashGenerationStarted", id: signpostID)
         logger.info("Generating hashes for: \(videoURL.path)")
 
-        let asset = try await validatedAsset(for: videoURL)
-        try Task.checkCancellation()
-        let duration = try await asset.load(.duration).seconds
-        let phashGenerator = PHashGenerator(configuration: configuration, extractionPolicy: extractionPolicy)
-        let oshashGenerator = OSHashGenerator()
+        let asset: AVURLAsset
+        do {
+            signposter.emitEvent("AssetValidationStarted", id: signpostID)
+            let state = signposter.beginInterval("AssetValidation", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
+            defer { signposter.endInterval("AssetValidation", state) }
+            asset = try await validatedAsset(for: videoURL)
+            signposter.emitEvent("AssetValidationCompleted", id: signpostID)
+        }
+        do {
+            signposter.emitEvent("CancellationCheckStarted", id: signpostID)
+            let state = signposter.beginInterval("CancellationCheck", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
+            defer { signposter.endInterval("CancellationCheck", state) }
+            try Task.checkCancellation()
+            signposter.emitEvent("CancellationCheckCompleted", id: signpostID)
+        }
+        let duration: Double
+        do {
+            signposter.emitEvent("DurationLoadingStarted", id: signpostID)
+            let state = signposter.beginInterval("DurationLoading", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
+            defer { signposter.endInterval("DurationLoading", state) }
+            duration = try await asset.load(.duration).seconds
+            signposter.emitEvent("DurationLoadingCompleted", id: signpostID)
+        }
+        let phashGenerator: PHashGenerator
+        let oshashGenerator: OSHashGenerator
+        do {
+            signposter.emitEvent("GeneratorSetupStarted", id: signpostID)
+            let state = signposter.beginInterval("GeneratorSetup", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
+            defer { signposter.endInterval("GeneratorSetup", state) }
+            phashGenerator = PHashGenerator(configuration: configuration, extractionPolicy: extractionPolicy)
+            oshashGenerator = OSHashGenerator()
+            signposter.emitEvent("GeneratorSetupCompleted", id: signpostID)
+        }
 
-        async let phash = phashGenerator.generateHash(for: videoURL, asset: asset)
-        async let oshash = oshashGenerator.generateHash(for: videoURL)
+        async let phash: String = {
+            signposter.emitEvent("PHashGenerationStarted", id: signpostID)
+            let state = signposter.beginInterval("PHashGeneration", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
+            defer { signposter.endInterval("PHashGeneration", state) }
+            let hash = try await phashGenerator.generateHash(for: videoURL, asset: asset, signpost: signpostID)
+            signposter.emitEvent("PHashGenerationCompleted", id: signpostID)
+            return hash
+        }()
+        async let oshash: String = {
+            signposter.emitEvent("OSHashGenerationStarted", id: signpostID)
+            let state = signposter.beginInterval("OSHashGeneration", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
+            defer { signposter.endInterval("OSHashGeneration", state) }
+            let hash = try await oshashGenerator.generateHash(for: videoURL)
+            signposter.emitEvent("OSHashGenerationCompleted", id: signpostID)
+            return hash
+        }()
 
-        let result = try await HashResult(
-            phash: phash,
-            oshash: oshash,
-            duration: duration
-        )
+        let result: HashResult
+        do {
+            signposter.emitEvent("ResultCollectionStarted", id: signpostID)
+            let state = signposter.beginInterval("ResultCollection", id: signpostID, "URL: \(videoURL.lastPathComponent)")
+            defer { signposter.endInterval("ResultCollection", state) }
+            result = try await HashResult(
+                phash: phash,
+                oshash: oshash,
+                duration: duration
+            )
+            signposter.emitEvent("ResultCollectionCompleted", id: signpostID)
+        }
 
         logger.info(
             "Generated hashes successfully: phash=\(result.phash), oshash=\(result.oshash)"
         )
 
+        signposter.emitEvent("HashGenerationCompleted", id: signpostID)
         return result
     }
 

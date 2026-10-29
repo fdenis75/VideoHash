@@ -12,8 +12,8 @@ struct HashBenchmark {
     static func main() async throws {
         let args = CommandLine.arguments
         guard (5...6).contains(args.count), let limit = Int(args[3]), limit > 0,
-              ["combined", "phash", "oshash", "batch", "client"].contains(args[2]) else {
-            throw NSError(domain: "Usage: hash-benchmark <folder> <combined|phash|oshash|batch|client> <concurrency> <output.json> [ffmpeg-inputs-per-process]", code: 1)
+              ["combined", "phash", "oshash", "batch", "stream", "client"].contains(args[2]) else {
+            throw NSError(domain: "Usage: hash-benchmark <folder> <combined|phash|oshash|batch|stream|client> <concurrency> <output.json> [ffmpeg-inputs-per-process]", code: 1)
         }
         let urls = try FileManager.default.contentsOfDirectory(
             at: URL(fileURLWithPath: args[1]), includingPropertiesForKeys: [.isRegularFileKey]
@@ -36,6 +36,15 @@ struct HashBenchmark {
             measurements = zip(urls, results).map { url, result in
                 Measurement(file: url.lastPathComponent, seconds: nil, phash: result.phash, oshash: result.oshash, duration: result.duration)
             }
+        } else if mode == "stream" {
+            let stream = await generator.generateHashesStream(for: urls, maxConcurrentTasks: limit)
+            for try await (_, url, result) in stream {
+                let hashes = try result.get()
+                measurements.append(
+                    Measurement(file: url.lastPathComponent, seconds: nil, phash: hashes.phash, oshash: hashes.oshash, duration: hashes.duration)
+                )
+            }
+            measurements.sort { $0.file < $1.file }
         } else if mode == "client" {
             measurements = try await withThrowingTaskGroup(of: Measurement.self) { group in
                 var next = 0
@@ -56,7 +65,7 @@ struct HashBenchmark {
         } else {
             for url in urls { measurements.append(try await measure(url, mode: mode, generator: generator)) }
         }
-        let report = Report(mode: mode, concurrency: mode == "batch" || mode == "client" ? limit : 1,
+        let report = Report(mode: mode, concurrency: mode == "batch" || mode == "stream" || mode == "client" ? limit : 1,
                             seconds: seconds(since: start), measurements: measurements, ffmpegInputsPerProcess: inputLimit ?? VideoHashGenerator.defaultFFmpegInputsPerProcess, ffmpegLaunchAttempts: launches.withLock { $0 })
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

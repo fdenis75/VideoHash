@@ -1,6 +1,6 @@
 /// Resource scheduling only: sample times and each input/output option stay unchanged.
 struct FFmpegExtractionPolicy: Sendable {
-    static let production = Self(fixedLimit: 9)
+    static let production = Self(fixedLimit: 10)
 
     let maxInputsPerProcess: Int?
     var onLaunchAttempt: (@Sendable ([String]) -> Void)?

@@ -61,11 +61,7 @@ struct FrameExtractionParityTests {
             let commands = trace.withLock { $0 }
             let groups = policy.groups(count: 25)
             #expect(commands.count == 1 + groups.count, "No hidden fallback")
-            for group in groups {
-                let firstOutput = "frame-\(group.lowerBound).bmp"
-                let command = try #require(commands.dropFirst().first { arguments in
-                    arguments.contains { URL(fileURLWithPath: $0).lastPathComponent == firstOutput }
-                })
+            for (group, command) in zip(groups, commands.dropFirst()) {
                 var expectedArguments = ["-v", "error", "-y"]
                 for index in group { expectedArguments += ["-ss", times[index], "-i", url.path] }
                 let outputs = command.filter { $0.hasSuffix(".bmp") }
