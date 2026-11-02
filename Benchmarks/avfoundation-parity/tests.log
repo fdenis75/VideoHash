@@ -1,0 +1,113 @@
+Building for debugging...
+[Provisioning 5 / 10]
+[Pre-planning 1 / 242]
+[Planning deferred tasks]
+[5 / 34]
+[7 / 18] VideoHashTests-product
+[8 / 28]
+[17 / 28] VideoHashTests-product
+[18 / 28] VideoHashTests-product
+[21 / 27] VideoHashTests-product
+[23 / 27] VideoHashTests-product
+Build complete! (4,20 s)
+􀟈  Test run started.
+􀄵  Testing Library Version: 2084
+􀄵  Target Platform: arm64e-apple-macos14.0
+􀟈  Suite FrameExtractionFallbackTests started.
+􀟈  Suite RGBImageColorTests started.
+􀟈  Suite AVFoundationFrameSamplerTests started.
+􀟈  Suite "PHash Reference Parity Tests" started.
+􀟈  Test "Preserving tagged video RGB avoids an extra transfer conversion and retains row order" started.
+􀟈  Suite FrameExtractionCancellationTests started.
+􀟈  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" started.
+􀟈  Test testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) started.
+􀟈  Test "Sprite composer tiles frames left to right, top to bottom" started.
+􀟈  Test "BMP decoder rejects malformed input" started.
+􀟈  Test "Duration is parsed from ffmpeg output with centisecond precision" started.
+􀟈  Test testPreCancelledPublicCalls() started.
+􀟈  Test case passing 1 argument variableRate → false to "Sample cursor selects the next real presentation frame, including variable-rate gaps" started.
+􀟈  Test case passing 1 argument variableRate → true to "Sample cursor selects the next real presentation frame, including variable-rate gaps" started.
+􀟈  Test "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 1 argument malformedBMP → false to testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) started.
+􀟈  Test "Sprite composer rejects missing frames" started.
+􀟈  Test case passing 1 argument malformedBMP → true to testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) started.
+􀟈  Test "BMP decoder handles bottom-up rows, BGR order and row padding" started.
+2026-10-30T05:14:54+0100 info com.videohash.phash: [VideoHash] Created sprite: 4x2
+􀟈  Test case passing 4 arguments width → 800, height → 450, seed → 1, expected → "80012f3f3f3c7879" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 800, height → 1420, seed → 2, expected → "80126e00ff07b77f" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 800, height → 640, seed → 3, expected → "d0e480a783df0f1f" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 64, height → 64, seed → 4, expected → "b3250fda2c59d529" to "Sprite hash matches goimagehash PerceptionHash" started.
+􀟈  Test case passing 4 arguments width → 37, height → 23, seed → 5, expected → "c812b61db535b617" to "Sprite hash matches goimagehash PerceptionHash" started.
+2026-10-30T05:14:54+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􁁛  Test "BMP decoder rejects malformed input" passed after 0.026 seconds.
+􁁛  Test "Duration is parsed from ffmpeg output with centisecond precision" passed after 0.026 seconds.
+􁁛  Test "Sprite composer tiles frames left to right, top to bottom" passed after 0.026 seconds.
+􁁛  Test "Preserving tagged video RGB avoids an extra transfer conversion and retains row order" passed after 0.026 seconds.
+􁁛  Test "Sprite composer rejects missing frames" passed after 0.026 seconds.
+􁁛  Test "BMP decoder handles bottom-up rows, BGR order and row padding" passed after 0.026 seconds.
+2026-10-30T05:14:54+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􁁛  Suite RGBImageColorTests passed after 0.027 seconds.
+2026-10-30T05:14:54+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+2026-10-30T05:14:54+0100 info com.videohash: [VideoHash] VideoHashGenerator initialized
+􁁛  Test testPreCancelledPublicCalls() passed after 0.027 seconds.
+􀟈  Test testCancelledExtractionDoesNotEnterFallback() started.
+2026-10-30T05:14:54+0100 info com.videohash: [VideoHash] temp dir for ffmpe : /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/unused.mp4-20261030-051454-570-ffmpgfor /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/BA13FA0A-08E8-4A50-8067-289D6A8C8D0B/unused.mp4
+2026-10-30T05:14:54+0100 info com.videohash: [VideoHash] temp dir for ffmpe : /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/unused.mp4-20261030-051454-572-ffmpgfor /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/0F762A35-E314-442A-B2B4-98A601E82ABE/unused.mp4
+2026-10-30T05:14:54+0100 info com.videohash: [VideoHash] temp dir for ffmpe : /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/unused.mp4-20261030-051454-572-ffmpg/for /var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/52504EFA-E21F-4271-BD3B-5C43738F56E5/unused.mp4
+􀢄  Test testCancelledExtractionDoesNotEnterFallback() recorded an issue at FrameExtractionCancellationTests.swift:74:9: Expectation failed: !FileManager.default.fileExists(atPath: URL(fileURLWithPath: output).deletingLastPathComponent().path)
+􀄵  !FileManager.default.fileExists(atPath: URL(fileURLWithPath: output).deletingLastPathComponent().path) → true
+􀄵    FileManager.default.fileExists(atPath: URL(fileURLWithPath: output).deletingLastPathComponent().path) → false
+􀄵      FileManager.default → <NSFileManager: 0x102daf2a0>
+􀄵      URL(fileURLWithPath: output).deletingLastPathComponent().path → "/Users/francois/Dev"
+􀢄  Test testCancelledExtractionDoesNotEnterFallback() failed after 0.144 seconds with 1 issue.
+􀟈  Test testAVFoundationPreCancellation() started.
+􁁛  Test testAVFoundationPreCancellation() passed after 0.001 seconds.
+􀢄  Suite FrameExtractionCancellationTests failed after 0.172 seconds with 1 issue.
+2026-10-30T05:14:54+0100 warning com.videohash: [VideoHash] Batch frame extraction failed, extracting frames one by one: Frame extraction failed: ffmpeg batch frame extraction exited with status 1: unknown ffmpeg error
+2026-10-30T05:14:54+0100 warning com.videohash: [VideoHash] Fast seek failed at 3.0s, using accurate seek for remaining frames: Frame extraction failed: ffmpeg exited with status 1: unknown ffmpeg error
+2026-10-30T05:14:54+0100 warning com.videohash: [VideoHash] Batch frame extraction failed, extracting frames one by one: The file “frame-7.bmp” couldn’t be opened because there is no such file.
+2026-10-30T05:14:54+0100 warning com.videohash: [VideoHash] Fast seek failed at 3.0s, using accurate seek for remaining frames: Frame extraction failed: ffmpeg exited with status 1: unknown ffmpeg error
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:29:13: Expectation failed: abs(time.seconds - expectedTime) < 0.000001
+􀄵  abs(time.seconds - expectedTime) < 0.000001 → false
+􀄵    abs(time.seconds - expectedTime) → 0.2
+􀄵    0.000001 → 1e-06
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → false at AVFoundationFrameSamplerTests.swift:29:13: Expectation failed: abs(time.seconds - expectedTime) < 0.000001
+􀄵  abs(time.seconds - expectedTime) < 0.000001 → false
+􀄵    abs(time.seconds - expectedTime) → 0.2
+􀄵    0.000001 → 1e-06
+􀢄  Test testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) recorded an issue with 1 argument malformedBMP → true at FrameExtractionFallbackTests.swift:7:6: Caught error: Error Domain=NSCocoaErrorDomain Code=260 "The file “frame-17.bmp” couldn’t be opened because there is no such file." UserInfo={NSFilePath=/var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/unused.mp4-20261030-051454-572-ffmpg/frame-17.bmp, NSURL=file:///var/folders/vf/wr5nj9zx0dl8pc0gdgj9fn0c0000gn/T/unused.mp4-20261030-051454-572-ffmpg/frame-17.bmp, NSUnderlyingError=0x7cb1664660 {Error Domain=NSPOSIXErrorDomain Code=2 "No such file or directory"}}
+􀢄  Test testLateFailureRestartsAllFramesAndPreservesSlowSeek(malformedBMP:) with 2 test cases failed after 0.555 seconds with 1 issue.
+􀢄  Suite FrameExtractionFallbackTests failed after 0.555 seconds with 1 issue.
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:29:13: Expectation failed: abs(time.seconds - expectedTime) < 0.000001
+􀄵  abs(time.seconds - expectedTime) < 0.000001 → false
+􀄵    abs(time.seconds - expectedTime) → 0.19999999999999996
+􀄵    0.000001 → 1e-06
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:31:13: Expectation failed: CMTimeCompare(time, actual) == 0
+􀄵  CMTimeCompare(time, actual) == 0 → false
+􀄵    CMTimeCompare(time, actual) → 1
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:29:13: Expectation failed: abs(time.seconds - expectedTime) < 0.000001
+􀄵  abs(time.seconds - expectedTime) < 0.000001 → false
+􀄵    abs(time.seconds - expectedTime) → 0.09999999999999987
+􀄵    0.000001 → 1e-06
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:31:13: Expectation failed: CMTimeCompare(time, actual) == 0
+􀄵  CMTimeCompare(time, actual) == 0 → false
+􀄵    CMTimeCompare(time, actual) → 1
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:29:13: Expectation failed: abs(time.seconds - expectedTime) < 0.000001
+􀄵  abs(time.seconds - expectedTime) < 0.000001 → false
+􀄵    abs(time.seconds - expectedTime) → 0.10000000000000009
+􀄵    0.000001 → 1e-06
+􁁛  Test "Sprite hash matches goimagehash PerceptionHash" with 5 test cases passed after 0.777 seconds.
+􁁛  Suite "PHash Reference Parity Tests" passed after 0.778 seconds.
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:31:13: Expectation failed: CMTimeCompare(time, actual) == 0
+􀄵  CMTimeCompare(time, actual) == 0 → false
+􀄵    CMTimeCompare(time, actual) → 1
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:29:13: Expectation failed: abs(time.seconds - expectedTime) < 0.000001
+􀄵  abs(time.seconds - expectedTime) < 0.000001 → false
+􀄵    abs(time.seconds - expectedTime) → 0.19999999999999996
+􀄵    0.000001 → 1e-06
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" recorded an issue with 1 argument variableRate → true at AVFoundationFrameSamplerTests.swift:8:6: Caught error: Error Domain=AVFoundationErrorDomain Code=-11832 "Cannot Open" UserInfo={NSLocalizedFailureReason=This media cannot be used., NSLocalizedDescription=Cannot Open, NSUnderlyingError=0x7cb1664f90 {Error Domain=NSOSStatusErrorDomain Code=-12431 "(null)"}}
+􀢄  Test "Sample cursor selects the next real presentation frame, including variable-rate gaps" with 2 test cases failed after 0.824 seconds with 10 issues.
+􀢄  Suite AVFoundationFrameSamplerTests failed after 0.824 seconds with 10 issues.
+􀢄  Test run with 12 tests in 5 suites failed after 0.825 seconds with 12 issues.
+Note: Some test targets reported failures:
+  - VideoHashTests (Swift Testing)

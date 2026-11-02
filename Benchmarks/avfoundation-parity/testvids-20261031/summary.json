@@ -1,0 +1,225 @@
+{
+  "run_id": "31A5FD7D-2F2F-45DD-9C76-EEE22D48F99D",
+  "file_count": 24,
+  "exact_hashes": 11,
+  "valid_timestamps": 600,
+  "different_timestamps": 16,
+  "rows": [
+    {
+      "file": "364251_medium.mp4",
+      "distance": 6,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/364251_medium.mp4-20261031-171108-560-1F75D262-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/364251_medium.mp4-20261031-171108-560-1F75D262-ffmpg/comparison.csv"
+    },
+    {
+      "file": "356398_medium.mp4",
+      "distance": 4,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/356398_medium.mp4-20261031-171108-596-320784C2-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/356398_medium.mp4-20261031-171108-596-320784C2-ffmpg/comparison.csv"
+    },
+    {
+      "file": "367098_medium.mp4",
+      "distance": 4,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/367098_medium.mp4-20261031-171108-588-5DF864F8-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/367098_medium.mp4-20261031-171108-588-5DF864F8-ffmpg/comparison.csv"
+    },
+    {
+      "file": "DJI_0039.MP4",
+      "distance": 4,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/DJI_0039.MP4-20261031-171152-986-E2207D51-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/DJI_0039.MP4-20261031-171152-986-E2207D51-ffmpg/comparison.csv"
+    },
+    {
+      "file": "327388_medium.mp4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/327388_medium.mp4-20261031-171108-599-C371C1C2-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/327388_medium.mp4-20261031-171108-599-C371C1C2-ffmpg/comparison.csv"
+    },
+    {
+      "file": "328740_medium.mp4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/328740_medium.mp4-20261031-171108-556-DA0C7796-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/328740_medium.mp4-20261031-171108-556-DA0C7796-ffmpg/comparison.csv"
+    },
+    {
+      "file": "343177_medium.mp4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/343177_medium.mp4-20261031-171108-561-34A36C73-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/343177_medium.mp4-20261031-171108-561-34A36C73-ffmpg/comparison.csv"
+    },
+    {
+      "file": "370702_medium.mp4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/370702_medium.mp4-20261031-171138-245-567D3C43-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/370702_medium.mp4-20261031-171138-245-567D3C43-ffmpg/comparison.csv"
+    },
+    {
+      "file": "382582_medium.mp4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/382582_medium.mp4-20261031-171139-045-21C03A18-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/382582_medium.mp4-20261031-171139-045-21C03A18-ffmpg/comparison.csv"
+    },
+    {
+      "file": "DJI_0016.MP4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/DJI_0016.MP4-20261031-171142-922-0B1BCD71-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/DJI_0016.MP4-20261031-171142-922-0B1BCD71-ffmpg/comparison.csv"
+    },
+    {
+      "file": "DJI_0032.MP4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/DJI_0032.MP4-20261031-171148-189-0507D65B-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/DJI_0032.MP4-20261031-171148-189-0507D65B-ffmpg/comparison.csv"
+    },
+    {
+      "file": "DJI_0115.MP4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/DJI_0115.MP4-20261031-171214-063-571516B2-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/DJI_0115.MP4-20261031-171214-063-571516B2-ffmpg/comparison.csv"
+    },
+    {
+      "file": "concat_output.mp4",
+      "distance": 2,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 33.33333333333499,
+      "different_timestamps": 10,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/concat_output.mp4-20261031-171139-117-57A982F0-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/concat_output.mp4-20261031-171139-117-57A982F0-ffmpg/comparison.csv"
+    },
+    {
+      "file": "152174-802335605_medium.mp4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 16.683333333336492,
+      "different_timestamps": 6,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/152174-802335605_medium.mp4-20261031-171108-555-942397BC-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/152174-802335605_medium.mp4-20261031-171108-555-942397BC-ffmpg/comparison.csv"
+    },
+    {
+      "file": "368458_medium.mp4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/368458_medium.mp4-20261031-171108-544-45DE7F96-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/368458_medium.mp4-20261031-171108-544-45DE7F96-ffmpg/comparison.csv"
+    },
+    {
+      "file": "DJI_0013.MP4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/DJI_0013.MP4-20261031-171142-252-F5992D76-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/DJI_0013.MP4-20261031-171142-252-F5992D76-ffmpg/comparison.csv"
+    },
+    {
+      "file": "DJI_0042.MP4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/DJI_0042.MP4-20261031-171157-885-F1D78C03-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/DJI_0042.MP4-20261031-171157-885-F1D78C03-ffmpg/comparison.csv"
+    },
+    {
+      "file": "DJI_0044.MP4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/DJI_0044.MP4-20261031-171212-292-7A7102D6-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/DJI_0044.MP4-20261031-171212-292-7A7102D6-ffmpg/comparison.csv"
+    },
+    {
+      "file": "dji_fly_20220808_205258_626_1671894919975_hdrvideo.mp4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220808_205258_626_1671894919975_hdrvideo.mp4-20261031-171221-959-6DA95D58-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220808_205258_626_1671894919975_hdrvideo.mp4-20261031-171221-959-6DA95D58-ffmpg/comparison.csv"
+    },
+    {
+      "file": "dji_fly_20220809_192348_636_1671894907086_quickshot (1).mp4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot (1).mp4-20261031-171226-528-1269443E-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot (1).mp4-20261031-171226-528-1269443E-ffmpg/comparison.csv"
+    },
+    {
+      "file": "dji_fly_20220809_192348_636_1671894907086_quickshot.MP4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot.MP4-20261031-171228-299-871C4B1A-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot.MP4-20261031-171228-299-871C4B1A-ffmpg/comparison.csv"
+    },
+    {
+      "file": "dji_fly_20221227_164132_82_1672160060896_hdrvideo.MP4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20221227_164132_82_1672160060896_hdrvideo.MP4-20261031-171242-354-9ED6540F-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/dji_fly_20221227_164132_82_1672160060896_hdrvideo.MP4-20261031-171242-354-9ED6540F-ffmpg/comparison.csv"
+    },
+    {
+      "file": "dji_fly_20251228_165948_776_1766940328419_hdrvideo.mp4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20251228_165948_776_1766940328419_hdrvideo.mp4-20261031-171244-589-D3219FD8-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/dji_fly_20251228_165948_776_1766940328419_hdrvideo.mp4-20261031-171244-589-D3219FD8-ffmpg/comparison.csv"
+    },
+    {
+      "file": "dji_fly_20261009_121750_716_1791578469522_video.MP4",
+      "distance": 0,
+      "valid_timestamps": 25,
+      "max_time_difference_ms": 0.0,
+      "different_timestamps": 0,
+      "ffmpeg_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20261009_121750_716_1791578469522_video.MP4-20261031-171248-627-5A4E6D95-ffmpg",
+      "comparison": "/Users/francois/Dev/VideoHash/temp/dji_fly_20261009_121750_716_1791578469522_video.MP4-20261031-171248-627-5A4E6D95-ffmpg/comparison.csv"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "run_id": "EACCBAC9-DF78-41B0-987A-CA802F790132",
+  "reference_run_id": "95E98074-A31D-4E88-9F45-7DF07FF9AFF9",
+  "files": [
+    {
+      "file": "dji_fly_20220808_205258_626_1671894919975_hdrvideo.mp4",
+      "baseline_distance": 2,
+      "final_distance": 0,
+      "hash": "e8c9928affc180b7",
+      "timestamp_pairs": 25,
+      "max_timestamp_error_ms": 0.0,
+      "pixel_mae": 5.7090907407407405,
+      "brightness_bias": 2.7827222222222225,
+      "unchanged_ffmpeg_bmps": 25,
+      "av_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220808_205258_626_1671894919975_hdrvideo.mp4-20261030-051658-776-F8C02378-avf",
+      "ff_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220808_205258_626_1671894919975_hdrvideo.mp4-20261030-051704-699-C76480B6-ffmpg"
+    },
+    {
+      "file": "dji_fly_20220809_192348_636_1671894907086_quickshot (1).mp4",
+      "baseline_distance": 0,
+      "final_distance": 0,
+      "hash": "a8d4aad500b515ff",
+      "timestamp_pairs": 25,
+      "max_timestamp_error_ms": 0.0,
+      "pixel_mae": 6.887105555555555,
+      "brightness_bias": 4.089890740740741,
+      "unchanged_ffmpeg_bmps": 25,
+      "av_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot (1).mp4-20261030-051658-830-06865B25-avf",
+      "ff_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot (1).mp4-20261030-051704-699-B8C6D1AD-ffmpg"
+    },
+    {
+      "file": "dji_fly_20220809_192348_636_1671894907086_quickshot.MP4",
+      "baseline_distance": 0,
+      "final_distance": 0,
+      "hash": "a8d4aad500b515ff",
+      "timestamp_pairs": 25,
+      "max_timestamp_error_ms": 0.0,
+      "pixel_mae": 6.873692592592593,
+      "brightness_bias": 4.067464814814815,
+      "unchanged_ffmpeg_bmps": 25,
+      "av_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot.MP4-20261030-051658-740-1255278F-avf",
+      "ff_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20220809_192348_636_1671894907086_quickshot.MP4-20261030-051704-634-1D924467-ffmpg"
+    },
+    {
+      "file": "dji_fly_20221227_164132_82_1672160060896_hdrvideo.MP4",
+      "baseline_distance": 0,
+      "final_distance": 0,
+      "hash": "9de87a959f8a8a88",
+      "timestamp_pairs": 25,
+      "max_timestamp_error_ms": 0.0,
+      "pixel_mae": 3.8150759259259264,
+      "brightness_bias": 2.91015,
+      "unchanged_ffmpeg_bmps": 25,
+      "av_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20221227_164132_82_1672160060896_hdrvideo.MP4-20261030-051658-814-2D641760-avf",
+      "ff_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20221227_164132_82_1672160060896_hdrvideo.MP4-20261030-051704-687-C9135ADB-ffmpg"
+    },
+    {
+      "file": "dji_fly_20251228_165948_776_1766940328419_hdrvideo.mp4",
+      "baseline_distance": 0,
+      "final_distance": 0,
+      "hash": "dfd520a2d1e1aab8",
+      "timestamp_pairs": 25,
+      "max_timestamp_error_ms": 0.0,
+      "pixel_mae": 3.64935,
+      "brightness_bias": 2.9079925925925925,
+      "unchanged_ffmpeg_bmps": 25,
+      "av_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20251228_165948_776_1766940328419_hdrvideo.mp4-20261030-051658-811-1B391619-avf",
+      "ff_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20251228_165948_776_1766940328419_hdrvideo.mp4-20261030-051704-601-F4E63222-ffmpg"
+    },
+    {
+      "file": "dji_fly_20261009_121750_716_1791578469522_video.MP4",
+      "baseline_distance": 2,
+      "final_distance": 0,
+      "hash": "904bb719e63d38a6",
+      "timestamp_pairs": 25,
+      "max_timestamp_error_ms": 0.0,
+      "pixel_mae": 3.7729944444444445,
+      "brightness_bias": 2.3338296296296295,
+      "unchanged_ffmpeg_bmps": 25,
+      "av_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20261009_121750_716_1791578469522_video.MP4-20261030-051658-760-FFB98166-avf",
+      "ff_directory": "/Users/francois/Dev/VideoHash/temp/dji_fly_20261009_121750_716_1791578469522_video.MP4-20261030-051704-654-1876BDB8-ffmpg"
+    }
+  ]
+}

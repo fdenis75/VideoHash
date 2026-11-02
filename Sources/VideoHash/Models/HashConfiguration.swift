@@ -37,6 +37,19 @@ public struct HashConfiguration: Sendable, Equatable {
     /// `Bundle.main.path(forAuxiliaryExecutable: "ffmpeg")`.
     public var ffmpegPath: String?
 
+    /// For native extraction, round duration to centiseconds and select the first presentation
+    /// sample at or after each sampling instant. Unsupported cursor formats fall back to ordinary requests.
+    public var avFoundationAlignsFrameSelection = true
+
+    /// Keep the generated image's RGB colour space instead of converting video values to sRGB.
+    public var avFoundationPreservesSourceColorSpace = true
+
+    /// Optional folder for per-video frame timing diagnostics. Enables FFmpeg timestamp preservation.
+    public var frameTimingDirectory: URL? = nil
+
+    /// Optional shared run identifier for pairing concurrent backend diagnostics.
+    public var frameTimingRunID: String? = nil
+
     /// Default configuration matching videohashes tool
     public static let `default` = HashConfiguration(
         frameCount: 25,
@@ -48,6 +61,18 @@ public struct HashConfiguration: Sendable, Equatable {
         useFFmpegFrameExtraction: true,
         ffmpegPath: nil
     )
+    /// Default configuration matching videohashes tool
+    public static let Avfoundation = HashConfiguration(
+        frameCount: 25,
+        frameWidth: 160,
+        spriteColumns: 5,
+        spriteRows: 5,
+        dctSize: 64,
+        hashSize: 8,
+        useFFmpegFrameExtraction: false,
+        ffmpegPath: nil
+    )
+
 
     /// Initialize a hash configuration
     /// - Parameters:

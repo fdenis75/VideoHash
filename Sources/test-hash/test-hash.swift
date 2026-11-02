@@ -12,6 +12,7 @@ struct TestHash {
         let inputPath = CommandLine.arguments[1]
         let inputURL = URL(fileURLWithPath: inputPath)
         let maxConcurrentTasks = parseMaxConcurrentTasks(from: CommandLine.arguments) ?? 4
+        let ffmpeg = parseMaxff(from: CommandLine.arguments) ?? 4
         let referenceToolPath = parseReferenceToolPath(from: CommandLine.arguments)
 
         guard FileManager.default.fileExists(atPath: inputPath) else {
@@ -30,12 +31,15 @@ struct TestHash {
                 fileURLs: fileURLs,
                 folderURL: inputURL,
                 maxConcurrentTasks: maxConcurrentTasks,
-                referenceToolPath: referenceToolPath
+                maxffmpeg: ffmpeg,
+                referenceToolPath: referenceToolPath,
             )
         } else {
-            try await runSingleFileMode(
-                videoURL: inputURL,
+            try await runFolderMode(
+                fileURLs: [inputURL],
+                folderURL: inputURL.deletingLastPathComponent(),
                 maxConcurrentTasks: maxConcurrentTasks,
+                maxffmpeg: ffmpeg,
                 referenceToolPath: referenceToolPath
             )
         }
@@ -44,6 +48,7 @@ struct TestHash {
     private static func runSingleFileMode(
         videoURL: URL,
         maxConcurrentTasks: Int,
+        maxffmpeg: Int,
         referenceToolPath: String
     ) async throws {
         print("Testing VideoHash package...")
@@ -77,6 +82,8 @@ struct TestHash {
             print("Matches:")
             print("  PHash:    \(result.phash == reference.phash)")
             print("  OSHash:   \(result.oshash == reference.oshash)")
+            let distance = try runPHashComparison(phash: result.phash, referencePHash: reference.phash)
+            print("  PHash distance: \(distance)")
         } else {
             print("")
             print("Reference tool not found or not executable at: \(referenceToolPath)")
@@ -87,15 +94,27 @@ struct TestHash {
         fileURLs: [URL],
         folderURL: URL,
         maxConcurrentTasks: Int,
+        maxffmpeg: Int,
         referenceToolPath: String
     ) async throws {
         print("Testing VideoHash package...")
         print("Folder: \(folderURL.path)")
         print("Files: \(fileURLs.count)")
         print("Concurrency: \(maxConcurrentTasks)")
+        print("maxffmpeg: \(maxffmpeg)")
         print("")
-
-        let generator = VideoHashGenerator()
+      //      let generator = try VideoHashGenerator(configuration: .default, ffmpegMaxInputsPerProcess: inputLimit) 
+        let timingRoot = URL(fileURLWithPath: "/Users/francois/Dev/VideoHash/temp", isDirectory: true)
+        try FileManager.default.createDirectory(at: timingRoot, withIntermediateDirectories: true)
+        print("Timing diagnostics: \(timingRoot.path)")
+        let timingRunID = UUID().uuidString
+        var avConfiguration = HashConfiguration.Avfoundation
+        avConfiguration.frameTimingDirectory = timingRoot
+        avConfiguration.frameTimingRunID = timingRunID
+        var ffConfiguration = HashConfiguration.default
+        ffConfiguration.frameTimingDirectory = timingRoot
+        ffConfiguration.frameTimingRunID = timingRunID
+        let generator = try VideoHashGenerator(configuration: avConfiguration, ffmpegMaxInputsPerProcess: maxffmpeg)
         let startTime = Date()
         let results = try await generator.generateHashes(
             for: fileURLs,
@@ -112,31 +131,27 @@ struct TestHash {
         }
         print("  Total time: \(String(format: "%.2f", elapsed))s")
 
-        guard FileManager.default.isExecutableFile(atPath: referenceToolPath) else {
-            print("")
-            print("Reference tool not found or not executable at: \(referenceToolPath)")
-            return
-        }
-
-        let referenceStartTime = Date()
-        let references = try await runReferenceToolBatch(
-            at: referenceToolPath,
+        let generator2 = try VideoHashGenerator(configuration: ffConfiguration, ffmpegMaxInputsPerProcess: maxffmpeg)
+        let startTime2 = Date()
+        let results2 = try await generator2.generateHashes(
             for: fileURLs,
             maxConcurrentTasks: maxConcurrentTasks
         )
-        let referenceElapsed = Date().timeIntervalSince(referenceStartTime)
+        let elapsed2 = Date().timeIntervalSince(startTime2)
 
-        print("")
-        print("Reference (\(referenceToolPath)):")
-        for (url, reference) in zip(fileURLs, references) {
+        print("VideoHash ff results:")
+        for (url, (result, result2)) in zip(fileURLs, zip(results, results2)) {
             print("  \(url.lastPathComponent)")
-            print("    PHash:    \(reference.phash)")
-            print("    OSHash:   \(reference.oshash)")
+            print("    PHash:    \(result2.phash)")
+            print("    OSHash:   \(result2.oshash)")
+            print("    Duration: \(Int(result2.duration))s")
+            let distance = try runPHashComparison(phash: result.phash, referencePHash: result2.phash)
+            print("    PHash distance (AVFoundation vs ffmpeg): \(distance)")
         }
-        print("  Total time: \(String(format: "%.2f", referenceElapsed))s")
+        print("  Total time: \(String(format: "%.2f", elapsed2))s")
 
-        let comparisons = zip(results, references).map { result, reference in
-            (phash: result.phash == reference.phash, oshash: result.oshash == reference.oshash)
+        let comparisons = zip(results, results2).map { result, results2 in
+            (phash: result.phash == results2.phash, oshash: result.oshash == results2.oshash)
         }
         let matchingPHashCount = comparisons.filter(\.phash).count
         let matchingOSHashCount = comparisons.filter(\.oshash).count
@@ -145,6 +160,7 @@ struct TestHash {
         print("Matches:")
         print("  PHash:    \(matchingPHashCount)/\(fileURLs.count)")
         print("  OSHash:   \(matchingOSHashCount)/\(fileURLs.count)")
+        try FrameTimingComparison.printReport(in: timingRoot, runID: timingRunID)
     }
 
     private static func runReferenceToolBatch(
@@ -194,6 +210,46 @@ struct TestHash {
         }
     }
 
+    private static func runPHashComparison(phash: String, referencePHash: String) throws -> Int {
+        let process = Process()
+        process.executableURL = URL(
+            fileURLWithPath: "/Users/francois/Dev26/videohashes/dist/phashcompare-arm64-macos"
+        )
+        process.arguments = [phash, referencePHash]
+        let outputPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = outputPipe
+
+        try process.run()
+        // Drain output before waiting so a full pipe cannot block the process.
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        process.waitUntilExit()
+        let output = String(data: outputData, encoding: .utf8) ?? ""
+
+        guard process.terminationReason == .exit, process.terminationStatus == 0 else {
+            throw NSError(
+                domain: "TestHash",
+                code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "PHash comparison failed (status \(process.terminationStatus)): \(output)"]
+            )
+        }
+
+        let distanceLine = output.split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { $0.hasPrefix("Distance:") }
+        guard let distanceLine,
+              let distance = Int(distanceLine.dropFirst("Distance:".count)
+                .trimmingCharacters(in: .whitespacesAndNewlines)),
+              distance >= 0 else {
+            throw NSError(
+                domain: "TestHash",
+                code: 3,
+                userInfo: [NSLocalizedDescriptionKey: "Missing or invalid PHash distance in comparison output: \(output)"]
+            )
+        }
+        return distance
+    }
+
     private static func runReferenceTool(
         at referenceToolPath: String,
         for videoURL: URL
@@ -226,6 +282,7 @@ struct TestHash {
         )
     }
 
+    
     private static func collectFiles(in folderURL: URL) throws -> [URL] {
         let fileManager = FileManager.default
         let contents = try fileManager.contentsOfDirectory(
@@ -251,15 +308,22 @@ struct TestHash {
         }
         return value
     }
+    private static func parseMaxff(from arguments: [String]) -> Int? {
+        guard arguments.count > 3, let value = Int(arguments[3]), value > 0 else {
+            return nil
+        }
+        return value
+    }
+
 
     private static func parseReferenceToolPath(from arguments: [String]) -> String {
-        if arguments.count > 3 {
+        if arguments.count > 4 {
             return arguments[3]
         }
-        if arguments.count > 2, Int(arguments[2]) == nil {
-            return arguments[2]
+        if arguments.count > 3, Int(arguments[3]) == nil {
+            return arguments[3]
         }
-        return "/opt/bin/videohashes-amd64-macos"
+        return "/Users/francois/Dev26/videohashes/dist/videohashes-arm64-macos"
     }
 }
 
@@ -268,3 +332,4 @@ private struct ReferenceResult {
     let oshash: String
     let elapsed: TimeInterval
 }
+

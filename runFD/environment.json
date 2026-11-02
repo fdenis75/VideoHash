@@ -1,0 +1,17 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "ffmpeg_inputs_per_process": 10,
+  "selected_cases": [
+    "batch-4"
+  ],
+  "fixture_directory": "/Volumes/Ext-6TB-2/HashTest",
+  "baseline": null,
+  "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0\n",
+  "hardware": "hw.model: MacBookPro18,3\nhw.memsize: 17179869184\nhw.ncpu: 8\n",
+  "revision": "015818010e8a8f630239433c675245238eacd4ca",
+  "ffmpeg": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
+  "fixtures": [],
+  "sampling": "ps RSS KiB, nominal 100ms interval plus ps overhead; summed simultaneous descendants; shared pages may be double counted; brief peaks may be missed",
+  "purge_before_each_case": true,
+  "cache": "sudo -n /usr/sbin/purge required before every case, outside timing; device caches and within-case caching remain uncontrolled."
+}
