@@ -41,7 +41,8 @@ struct FrameExtractionCancellationTests {
         fi
         for last; do :; done
         echo $$ > \(quote(pidFile.path))
-        printf '%s' "$last" > \(quote(ready.path))
+        printf '%s' "$last" > \(quote(ready.path + ".tmp"))
+        mv \(quote(ready.path + ".tmp")) \(quote(ready.path))
         while :; do :; done
         """
         try script.write(to: executable, atomically: true, encoding: .utf8)

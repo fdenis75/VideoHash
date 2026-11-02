@@ -1,0 +1,6 @@
+{
+  "returncode": 1,
+  "seconds": 0.032642167003359646,
+  "stdout": "",
+  "stderr": "sudo: a password is required\n"
+}

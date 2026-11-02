@@ -21,3 +21,5 @@ DerivedData/
 
 # scratch files
 scratch/
+# Extracted frames and timing diagnostics
+temp/

@@ -16,6 +16,10 @@ let package = Package(
         .executable(
             name: "test-hash",
             targets: ["test-hash"]
+        ),
+        .executable(
+            name: "testhash",
+            targets: ["TestHash"]
         )
     ],
     dependencies: [
