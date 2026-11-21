@@ -213,7 +213,7 @@ struct TestHash {
     private static func runPHashComparison(phash: String, referencePHash: String) throws -> Int {
         let process = Process()
         process.executableURL = URL(
-            fileURLWithPath: "/Users/francois/Dev26/videohashes/dist/phashcompare-arm64-macos"
+            fileURLWithPath: "/Users/francois/Dev/videohashes/dist/phashcompare-arm64-macos"
         )
         process.arguments = [phash, referencePHash]
         let outputPipe = Pipe()
@@ -323,7 +323,7 @@ struct TestHash {
         if arguments.count > 3, Int(arguments[3]) == nil {
             return arguments[3]
         }
-        return "/Users/francois/Dev26/videohashes/dist/videohashes-arm64-macos"
+        return "/Users/francois/Dev/videohashes/dist/videohashes-arm64-macos"
     }
 }
 
