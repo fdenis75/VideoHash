@@ -13,7 +13,7 @@ import os
 /// Main entry point for video hash generation
 ///
 /// VideoHashGenerator coordinates PHash and OSHash generation for video files.
-/// It uses AVFoundation for video processing and provides actor-based concurrency
+/// It uses AVFoundation and ffmpeg for video processing and provides actor-based concurrency
 /// for thread-safe hash generation.
 ///
 /// Example usage:
@@ -224,9 +224,20 @@ public actor VideoHashGenerator: Sendable {
     // MARK: - Private Helpers
 
     /// Validate video file exists and is accessible
-    /// - Parameter url: URL of the video file
+    ///
+    /// Files AVFoundation cannot read (AVI, WMV, MKV, ...) are accepted when ffmpeg
+    /// sees a video in them. For those, `ffmpegDuration` is set and the returned
+    /// configuration forces ffmpeg frame extraction.
+    /// - Parameters:
+    ///   - url: URL of the video file
+    ///   - configuration: Requested configuration
+    ///   - extractionPolicy: FFmpeg process policy
     /// - Throws: HashError if file doesn't exist or is not a valid video
-    private static func validatedAsset(for url: URL) async throws -> AVURLAsset {
+    private static func validatedAsset(
+        for url: URL,
+        configuration: HashConfiguration,
+        extractionPolicy: FFmpegExtractionPolicy
+    ) async throws -> (asset: AVURLAsset, configuration: HashConfiguration, ffmpegDuration: Double?) {
         let path = url.path
         let fileManager = FileManager.default
         let logger = Logger.videoHash
@@ -243,24 +254,36 @@ public actor VideoHashGenerator: Sendable {
             throw HashError.invalidVideoFile(path: path, reason: "File is not readable")
         }
 
-        // Basic validation using AVFoundation
+        // Basic validation using AVFoundation: at least one video track
         let asset = AVURLAsset(url: url)
-        let tracks = try await asset.load(.tracks)
-
-        guard !tracks.isEmpty else {
-            logger.error("No tracks found in video: \(path)")
-            throw HashError.invalidVideoFile(path: path, reason: "No video tracks found")
+        var reason = "No video tracks found"
+        do {
+            if try await asset.load(.tracks).contains(where: { $0.mediaType == .video }) {
+                logger.info("validated: \(path)")
+                return (asset, configuration, nil)
+            }
+        } catch {
+            try Task.checkCancellation()
+            if error is CancellationError { throw error }
+            reason = "AVFoundation cannot read the file: \(error.localizedDescription)"
         }
 
-        // Verify at least one video track exists
-        let hasVideoTrack = tracks.contains(where: { $0.mediaType == .video })
-
-        guard hasVideoTrack else {
-            logger.error("No video tracks found: \(path)")
-            throw HashError.invalidVideoFile(path: path, reason: "No video tracks found")
+        do {
+            let extractor = FrameExtractor(configuration: configuration, extractionPolicy: extractionPolicy)
+            if let duration = try await extractor.probeVideoDuration(url: url) {
+                logger.info("validated with ffmpeg: \(path)")
+                var ffmpegConfiguration = configuration
+                ffmpegConfiguration.useFFmpegFrameExtraction = true
+                return (asset, ffmpegConfiguration, duration)
+            }
+        } catch {
+            try Task.checkCancellation()
+            if error is CancellationError { throw error }
+            reason += "; ffmpeg fallback failed: \(error.localizedDescription)"
         }
-        logger.info("validated: \(path)")
-        return asset
+
+        logger.error("Invalid video file \(path): \(reason)")
+        throw HashError.invalidVideoFile(path: path, reason: reason)
     }
 
     private static func generateHashesForSingleVideo(
@@ -278,11 +301,15 @@ public actor VideoHashGenerator: Sendable {
         logger.info("Generating hashes for: \(videoURL.path)")
 
         let asset: AVURLAsset
+        let effectiveConfiguration: HashConfiguration
+        let ffmpegDuration: Double?
         do {
             signposter.emitEvent("AssetValidationStarted", id: signpostID)
             let state = signposter.beginInterval("AssetValidation", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
             defer { signposter.endInterval("AssetValidation", state) }
-            asset = try await validatedAsset(for: videoURL)
+            (asset, effectiveConfiguration, ffmpegDuration) = try await validatedAsset(
+                for: videoURL, configuration: configuration, extractionPolicy: extractionPolicy
+            )
             signposter.emitEvent("AssetValidationCompleted", id: signpostID)
         }
         do {
@@ -297,7 +324,11 @@ public actor VideoHashGenerator: Sendable {
             signposter.emitEvent("DurationLoadingStarted", id: signpostID)
             let state = signposter.beginInterval("DurationLoading", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
             defer { signposter.endInterval("DurationLoading", state) }
-            duration = try await asset.load(.duration).seconds
+            if let ffmpegDuration {
+                duration = ffmpegDuration
+            } else {
+                duration = try await asset.load(.duration).seconds
+            }
             signposter.emitEvent("DurationLoadingCompleted", id: signpostID)
         }
         let phashGenerator: PHashGenerator
@@ -306,7 +337,7 @@ public actor VideoHashGenerator: Sendable {
             signposter.emitEvent("GeneratorSetupStarted", id: signpostID)
             let state = signposter.beginInterval("GeneratorSetup", id: signpostID,  "URL: \(videoURL.lastPathComponent)")
             defer { signposter.endInterval("GeneratorSetup", state) }
-            phashGenerator = PHashGenerator(configuration: configuration, extractionPolicy: extractionPolicy)
+            phashGenerator = PHashGenerator(configuration: effectiveConfiguration, extractionPolicy: extractionPolicy)
             oshashGenerator = OSHashGenerator()
             signposter.emitEvent("GeneratorSetupCompleted", id: signpostID)
         }
@@ -357,10 +388,12 @@ public actor VideoHashGenerator: Sendable {
         let logger = Logger.videoHash
         logger.info("Generating PHash for: \(videoURL.path)")
 
-        let asset = try await validatedAsset(for: videoURL)
+        let video = try await validatedAsset(
+            for: videoURL, configuration: configuration, extractionPolicy: extractionPolicy
+        )
         try Task.checkCancellation()
-        let phash = try await PHashGenerator(configuration: configuration, extractionPolicy: extractionPolicy)
-            .generateHash(for: videoURL, asset: asset)
+        let phash = try await PHashGenerator(configuration: video.configuration, extractionPolicy: extractionPolicy)
+            .generateHash(for: videoURL, asset: video.asset)
 
         logger.info("Generated PHash: \(phash)")
         return phash

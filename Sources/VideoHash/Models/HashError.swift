@@ -49,7 +49,7 @@ public enum HashError: LocalizedError, Sendable, Equatable {
             return "Verify the file path exists and is accessible"
 
         case .invalidVideoFile:
-            return "Ensure the file is a valid video format supported by AVFoundation"
+            return "Ensure the file is a valid video format supported by AVFoundation or ffmpeg"
 
         case .frameExtractionFailed:
             return "Check if the video is corrupted or in an unsupported format"

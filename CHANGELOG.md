@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+### Fixed
+- Files AVFoundation cannot open (such as AVI, WMV, FLV, MKV or WebM) can now be hashed: duration and frames come from ffmpeg, even with `useFFmpegFrameExtraction: false`. Hashes of files AVFoundation reads are unchanged.
+
+### Changed
+- A file that is not a video now always throws `HashError.invalidVideoFile`, instead of sometimes the underlying AVFoundation error.
+
 ## 0.3.0
 PHash output now matches the reference `videohashes` tool bit for bit. **PHash values change** compared to 0.2.x; re-hash any stored values.
 

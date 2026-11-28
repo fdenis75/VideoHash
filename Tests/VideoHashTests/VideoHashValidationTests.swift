@@ -15,8 +15,15 @@ struct VideoHashValidationTests {
         try Data("not a video".utf8).write(to: url)
         defer { try? FileManager.default.removeItem(at: url) }
         let generator = VideoHashGenerator()
-        // AVFoundation load errors are intentionally not remapped by validation.
-        await #expect(throws: (any Error).self) { try await generator.generateHashes(for: url) }
-        await #expect(throws: (any Error).self) { try await generator.generatePHash(for: url) }
+        for operation in [
+            { _ = try await generator.generateHashes(for: url) },
+            { _ = try await generator.generatePHash(for: url) }
+        ] as [@Sendable () async throws -> Void] {
+            let error = await #expect(throws: HashError.self) { try await operation() }
+            guard case .invalidVideoFile = error else {
+                Issue.record("Expected invalidVideoFile, got \(String(describing: error))")
+                continue
+            }
+        }
     }
 }

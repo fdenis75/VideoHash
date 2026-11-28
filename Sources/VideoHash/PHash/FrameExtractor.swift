@@ -111,13 +111,7 @@ actor FrameExtractor: Sendable {
     /// AVFoundation's duration can differ noticeably (e.g. 21.38s vs 21.43s), which
     /// shifts every sample timestamp, so it is only used when ffmpeg reports none.
     private func probeDuration(ffmpegPath: String, url: URL, asset: AVURLAsset) async throws -> Double {
-        // ffmpeg exits non-zero here because no output is given; only stderr matters.
-        let result = try await runFFmpegProcess(
-            ffmpegPath: ffmpegPath,
-            arguments: ["-hide_banner", "-i", url.path],
-            launchFailureReason: "Failed to launch ffmpeg duration probe",
-            failureReason: HashError.frameExtractionFailed
-        )
+        let result = try await runFFmpegInputProbe(ffmpegPath: ffmpegPath, url: url)
         
         if let duration = result.reportedDuration, duration > 0 {
             return duration
@@ -129,6 +123,37 @@ actor FrameExtractor: Sendable {
             throw HashError.invalidVideoFile(path: url.path, reason: "Video has zero duration")
         }
         return (durationSeconds * 100).rounded() / 100
+    }
+    
+    /// For files AVFoundation cannot read: the duration ffmpeg reports if it
+    /// finds a video in the file, otherwise nil.
+    func probeVideoDuration(url: URL) async throws -> Double? {
+        let result = try await runFFmpegInputProbe(ffmpegPath: try resolveFFmpegPath(), url: url)
+        guard let duration = result.reportedDuration, duration > 0,
+              Self.describesVideo(ffmpegOutput: result.stderr) else { return nil }
+        return duration
+    }
+    
+    /// ffmpeg also opens still images and text files as video; those don't count,
+    /// nor does the cover art of an audio file.
+    static func describesVideo(ffmpegOutput output: String) -> Bool {
+        guard let input = output.firstMatch(of: /Input #0, (\S+), from/),
+              input.1 != "image2", !input.1.hasSuffix("_pipe") else { return false }
+        return output.split(whereSeparator: \.isNewline).contains { line in
+            line.firstMatch(of: /^\s*Stream #0:.*: Video:/) != nil
+                && !line.contains("(attached pic)")
+                && line.firstMatch(of: /: Video: (ansi|bintext|xbin|idf)\b/) == nil
+        }
+    }
+    
+    private func runFFmpegInputProbe(ffmpegPath: String, url: URL) async throws -> FFmpegProcessResult {
+        // ffmpeg exits non-zero here because no output is given; only stderr matters.
+        try await runFFmpegProcess(
+            ffmpegPath: ffmpegPath,
+            arguments: ["-hide_banner", "-i", url.path],
+            launchFailureReason: "Failed to launch ffmpeg duration probe",
+            failureReason: HashError.frameExtractionFailed
+        )
     }
     
     /// Parse `Duration: HH:MM:SS.cc` from ffmpeg's input dump.

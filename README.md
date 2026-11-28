@@ -83,6 +83,7 @@ let generator = VideoHashGenerator(configuration: config)
 Notes:
 - `useFFmpegFrameExtraction: true` is the default and is recommended for parity with `videohashes`.
 - `useFFmpegFrameExtraction: false` uses the AVFoundation/CoreGraphics path.
+- Files AVFoundation cannot open (AVI, WMV, FLV, MKV, WebM, ...) are hashed through ffmpeg whatever this setting, provided `ffmpeg` is available and reports a duration.
 - `phash` is emitted as lowercase hexadecimal (not zero-padded).
 
 ## Development
