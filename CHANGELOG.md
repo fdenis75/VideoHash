@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.1
+## 0.4.2
 ### Fixed
 - Files AVFoundation cannot open (such as AVI, WMV, FLV, MKV or WebM) can now be hashed: duration and frames come from ffmpeg, even with `useFFmpegFrameExtraction: false`. Hashes of files AVFoundation reads are unchanged.
 
